@@ -1,0 +1,12 @@
+---
+groups:
+  - name: md
+    rules:
+      - alert: MdHealthFailedDisks
+        expr: netdata_md_health_failed_disks_average != 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "RAID Array is degraded! (instance {{ $labels.instance }})"
+          description: "Detected a failed disk in the RAID Array\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
