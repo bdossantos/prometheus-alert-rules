@@ -2,9 +2,19 @@
 groups:
   - name: CPU
     rules:
-      - alert: node_high_cpu_usage_70
+      - alert: high_cpu_usage
         expr: avg(rate(netdata_cpu_cpu_percentage_average{dimension="idle"}[1m])) by (job) > 70
         for: 1m
+        labels:
+          severity: warning
         annotations:
           description: "{{ $labels.job }} on '{{ $labels.job }}' CPU usage is at {{ humanize $value }}%."
-          summary: CPU alert for '{{ $labels.job }}'
+          summary: High CPU usage alert for '{{ $labels.job }}'
+      - alert: steal_cpu_usage
+        expr: avg(rate(netdata_cpu_cpu_percentage_average{dimension="steal"}[20m])) by (job) > 10
+        for: 20m
+        labels:
+          severity: warning
+        annotations:
+          description: "{{ $labels.job }} on '{{ $labels.job }}' CPU usage is at {{ humanize $value }}%."
+          summary: CPU steal alert for '{{ $labels.job }}'
