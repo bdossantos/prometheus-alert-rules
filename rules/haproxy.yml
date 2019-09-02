@@ -1,0 +1,12 @@
+---
+groups:
+  - name: Haproxy
+    rules:
+      - alert: haproxy_idle_percentage_average
+        expr: netdata_haproxy_idle_percentage_average < 50
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          description: "Haproxy idle percentage average is at {{ humanize $value }}%."
+          summary: Haproxy idle percentage average alert for '{{ $labels.job }}'
