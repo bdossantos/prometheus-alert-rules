@@ -11,7 +11,7 @@ groups:
           summary: "RAID Array is degraded! (instance {{ $labels.instance }})"
           description: "Detected a failed disk in the RAID Array\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
       - alert: MdMismatchCntUnsynchronizedBlocksAverage
-        expr: netdata_md_mismatch_cnt_unsynchronized_blocks_average >= 0
+        expr: netdata_md_mismatch_cnt_unsynchronized_blocks_average > 0
         for: 60m
         labels:
           severity: warning
