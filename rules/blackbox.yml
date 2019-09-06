@@ -20,6 +20,15 @@ groups:
         annotations:
           description: "{{ $labels.url }} probe slow ({{ $value }}s)"
           summary: URL Probe Slow
+      - alert: DnsLookupTimeProbeSlow
+        expr: probe_dns_lookup_time_seconds > 0.2
+        for: 1m
+        labels:
+          scope: blackbox
+          severity: critical
+        annotations:
+          description: "{{ $labels.url }} probe slow ({{ $value }}s)"
+          summary: DNS lookup time Probe Slow
       - alert: SSLCertExpiringSoon
         expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 30
         for: 10m
