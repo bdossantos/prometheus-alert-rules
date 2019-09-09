@@ -1,0 +1,38 @@
+---
+# https://www.backblaze.com/blog/what-smart-stats-indicate-hard-drive-failures/
+# https://www.backblaze.com/blog/hard-drive-smart-stats/
+groups:
+  - name: smartd
+    rules:
+      - alert: smartd_log_reallocated_sectors_count_sectors_average
+        expr: netdata_smartd_log_reallocated_sectors_count_sectors_average > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          description: "Reallocated sectors count is at {{ humanize $value }}%."
+          summary: "There is reallocated sectors (instance {{ $labels.instance }})"
+      - alert: smartd_log_offline_uncorrectable_sector_count_sectors_average
+        expr: netdata_smartd_log_offline_uncorrectable_sector_count_sectors_average > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          description: "Disk uncorrectable errors at {{ humanize $value }}%."
+          summary: "Reported uncorrectable errors (instance {{ $labels.instance }})"
+      - alert: smartd_log_current_pending_sector_count_sectors_average
+        expr: netdata_smartd_log_current_pending_sector_count_sectors_average > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          description: "Disk current Pending Sector Count is at {{ humanize $value }}%."
+          summary: "Reported pending sectors (instance {{ $labels.instance }})"
+      - alert: smartd_log_current_pending_sector_count_sectors_average
+        expr: netdata_smartd_log_offline_uncorrectable_sector_count_sectors_average > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          description: "Disk uncorrectable sector count is at {{ humanize $value }}%."
+          summary: "Reported uncorrectable sectors (instance {{ $labels.instance }})"
