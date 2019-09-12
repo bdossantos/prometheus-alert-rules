@@ -10,3 +10,11 @@ groups:
         annotations:
           summary: "High disk backlog avergage! (instance {{ $labels.instance }})"
           description: "Detected high disk backlog latency {{ humanize $value }}%."
+      - alert: low_available_disk_space
+        expr: netdata_disk_space_GiB_average{dimension="avail",family="/"} < 8
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk space is low (instance {{ $labels.instance }})"
+          description: "Available disk space for / is {{ humanize $value }}%."
