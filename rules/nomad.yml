@@ -1,0 +1,36 @@
+---
+groups:
+  - name: nomad
+    rules:
+      - alert: nomad_nomad_job_summary_failed
+        expr: nomad_nomad_job_summary_failed > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "A nomad job failed (instance {{ $labels.instance }})"
+          description: "Detected a failed nomad job {{ humanize $value }}%."
+      - alert: nomad_job_summary_lost
+        expr: nomad_nomad_job_summary_lost > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "We lost a nomad job (instance {{ $labels.instance }})"
+          description: "Detected a lost nomad job {{ humanize $value }}%."
+      - alert: nomad_job_summary_lost
+        expr: nomad_nomad_job_summary_queued > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Some nomad job are queued (instance {{ $labels.instance }})"
+          description: "Detected queued nomad job(s) {{ humanize $value }}%."
+      - alert: nomad_nomad_blocked_evals_total_blocked
+        expr: nomad_nomad_blocked_evals_total_blocked > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Nomad blocked evaluation {{ $labels.instance }})"
+          description: "Detected a blocked nomad evaluation {{ humanize $value }}%."
