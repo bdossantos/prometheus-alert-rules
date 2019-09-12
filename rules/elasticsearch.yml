@@ -27,7 +27,7 @@ groups:
           description: "Elasticsearch pending tasks average is at {{ humanize $value }}%."
           summary: "Elasticsearch pending tasks average is too high (instance {{ $labels.instance }})"
       - alert: elastic_cluster_number_of_relocating_shards
-        expr: netdata_elastic_cluster_health_shards_shards_average{dimension="relocating_shards"} > 0
+        expr: avg(netdata_elastic_cluster_health_shards_shards_average{dimension="relocating_shards"}) > 0
         for: 10m
         labels:
           severity: warning
@@ -35,7 +35,7 @@ groups:
           summary: "Number of relocation shards (instance {{ $labels.instance }})"
           description: "Number of relocation shards for 10 min\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
       - alert: elastic_cluster_number_of_initializing_shards
-        expr: netdata_elastic_cluster_health_shards_shards_average{dimension="initializing"} > 0
+        expr: avg(netdata_elastic_cluster_health_shards_shards_average{dimension="initializing"}) > 0
         for: 5m
         labels:
           severity: warning
@@ -43,7 +43,7 @@ groups:
           summary: "Number of initializing shards (instance {{ $labels.instance }})"
           description: "Number of initializing shards for 5 min\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
       - alert: elastic_cluster_number_of_unassigned_shards
-        expr: netdata_elastic_cluster_health_shards_shards_average{dimension="initializing"} > 0
+        expr: avg(netdata_elastic_cluster_health_shards_shards_average{dimension="initializing"}) > 0
         for: 5m
         labels:
           severity: error
