@@ -10,3 +10,11 @@ groups:
         annotations:
           description: "Haproxy idle percentage average is at {{ humanize $value }}%."
           summary: Haproxy idle percentage average alert for '{{ $labels.job }}'
+      - alert: haproxy_b_hrsp_5xx_responses_persec_average
+        expr: netdata_haproxy_b_hrsp_5xx_responses_persec_average > 1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          description: "Haproxy backend responses per sec average is {{ humanize $value }}"
+          summary: Haproxy backend 5xx responses per sec alert for '{{ $labels.job }}'
