@@ -18,3 +18,11 @@ groups:
         annotations:
           description: "Haproxy backend responses per sec average is {{ humanize $value }}"
           summary: Haproxy backend 5xx responses per sec alert for '{{ $labels.job }}'
+      - alert: netdata_haproxy_hs_down_failed_servers_average
+        expr: netdata_haproxy_hs_down_failed_servers_average > 1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          description: "Haproxy failed backend average is {{ humanize $value }}"
+          summary: Haproxy failed server average for '{{ $labels.job }}'
