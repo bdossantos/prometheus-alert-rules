@@ -18,3 +18,51 @@ groups:
         annotations:
           summary: "Disk space is low (instance {{ $labels.instance }})"
           description: "Available disk space for / is {{ humanize $value }}%."
+      - alert: UnusualDiskReadRate
+        expr: sum by (instance) (irate(node_disk_read_bytes_total[2m])) / 1024 / 1024 > 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unusual disk read rate (instance {{ $labels.instance }})"
+          description: "Disk is probably reading too much data (> 50 MB/s)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: UnusualDiskWriteRate
+        expr: sum by (instance) (irate(node_disk_written_bytes_total[2m])) / 1024 / 1024 > 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unusual disk write rate (instance {{ $labels.instance }})"
+          description: "Disk is probably writing too much data (> 50 MB/s)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: OutOfDiskSpace
+        expr: node_filesystem_free_bytes{mountpoint ="/rootfs"} / node_filesystem_size_bytes{mountpoint ="/rootfs"} * 100 < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Out of disk space (instance {{ $labels.instance }})"
+          description: "Disk is almost full (< 10% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: OutOfInodes
+        expr: node_filesystem_files_free{mountpoint ="/rootfs"} / node_filesystem_files{mountpoint ="/rootfs"} * 100 < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Out of inodes (instance {{ $labels.instance }})"
+          description: "Disk is almost running out of available inodes (< 10% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: UnusualDiskReadLatency
+        expr: rate(node_disk_read_time_seconds_total[1m]) / rate(node_disk_reads_completed_total[1m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unusual disk read latency (instance {{ $labels.instance }})"
+          description: "Disk latency is growing (read operations > 100ms)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: UnusualDiskWriteLatency
+        expr: rate(node_disk_write_time_seconds_total[1m]) / rate(node_disk_writes_completed_total[1m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unusual disk write latency (instance {{ $labels.instance }})"
+          description: "Disk latency is growing (write operations > 100ms)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
