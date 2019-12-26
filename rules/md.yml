@@ -3,8 +3,8 @@ groups:
   - name: md
     rules:
       - alert: MdHealthFailedDisks
-        expr: netdata_md_health_failed_disks_average != 0
-        for: 5m
+        expr: (node_md_disks - node_md_disks_active) != 0
+        for: 1m
         labels:
           severity: error
         annotations:
