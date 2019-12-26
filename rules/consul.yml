@@ -14,7 +14,7 @@ groups:
         expr: consul_catalog_service_node_healthy == 0
         for: 5m
         labels:
-          severity: error
+          severity: warning
         annotations:
           summary: "Service healthcheck failed (instance {{ $labels.instance }})"
           description: "Service: `{{ $labels.service_name }}` Healthcheck: `{{ $labels.service_id }}`\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"

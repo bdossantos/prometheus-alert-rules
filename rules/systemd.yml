@@ -6,7 +6,7 @@ groups:
         expr: node_systemd_unit_state{state="failed"} == 1
         for: 5m
         labels:
-          severity: critical
+          severity: page
         annotations:
           summary: "SystemD service crashed (instance {{ $labels.instance }})"
           description: "SystemD service crashed\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"

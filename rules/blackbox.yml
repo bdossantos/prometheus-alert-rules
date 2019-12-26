@@ -7,7 +7,7 @@ groups:
         for: 1m
         labels:
           scope: blackbox
-          severity: critical
+          severity: page
         annotations:
           description: "{{ $labels.url }} probe failed"
           summary: URL Probe Failed
@@ -34,7 +34,7 @@ groups:
         for: 10m
         labels:
           scope: blackbox
-          severity: critical
+          severity: page
         annotations:
           description: "Renew SSL cert of {{ $labels.url }} !"
           summary: SSL Cert Expiring Soon

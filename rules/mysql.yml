@@ -42,32 +42,26 @@ groups:
             and is falling behind (queue size {{$value}})."
           summary: xtradb cluster donor node falling behind
       - alert: MySQLReplicationNotRunning
-        expr:
-          mysql_slave_status_slave_io_running == 0 or mysql_slave_status_slave_sql_running
-          == 0
+        expr: mysql_slave_status_slave_io_running == 0 or mysql_slave_status_slave_sql_running == 0
         for: 2m
         labels:
-          severity: critical
+          severity: page
         annotations:
           description: Slave replication (IO or SQL) has been down for more than 2 minutes.
           summary: Slave replication is not running
       - alert: MySQLReplicationLag
-        expr:
-          (mysql_slave_lag_seconds > 30) and ON(instance) (predict_linear(mysql_slave_lag_seconds[5m],
-          60 * 2) > 0)
+        expr: (mysql_slave_lag_seconds > 30) and ON(instance) (predict_linear(mysql_slave_lag_seconds[5m], 60 * 2) > 0)
         for: 1m
         labels:
-          severity: critical
+          severity: page
         annotations:
           description: The mysql slave replication has fallen behind and is not recovering
           summary: MySQL slave replication is lagging
       - alert: MySQLReplicationLag
-        expr:
-          (mysql_heartbeat_lag_seconds > 30) and ON(instance) (predict_linear(mysql_heartbeat_lag_seconds[5m],
-          60 * 2) > 0)
+        expr: (mysql_heartbeat_lag_seconds > 30) and ON(instance) (predict_linear(mysql_heartbeat_lag_seconds[5m], 60 * 2) > 0)
         for: 1m
         labels:
-          severity: critical
+          severity: page
         annotations:
           description: The mysql slave replication has fallen behind and is not recovering
           summary: MySQL slave replication is lagging

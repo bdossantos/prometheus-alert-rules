@@ -2,9 +2,11 @@
 groups:
   - name: memory
     rules:
-      - alert: high_memory_usage_70
-        expr: 100 / sum(netdata_system_ram_MiB_average) by (job) * sum(netdata_system_ram_MiB_average{dimension=~"free|cached"}) by (job) < 30
-        for: 1m
+      - alert: OutOfMemory
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
+        for: 5m
+        labels:
+          severity: page
         annotations:
-          description: "{{ $labels.job }} memory usage is {{ humanize $value}}%."
-          summary: Memory alert for container node '{{ $labels.job }}'
+          summary: "Out of memory (instance {{ $labels.instance }})"
+          description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
