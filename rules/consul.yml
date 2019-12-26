@@ -2,6 +2,14 @@
 groups:
   - name: consul
     rules:
+      - alert: Consul cluster is degraded
+        expr: min(consul_raft_peers) < 3
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          title: Consul cluster is degraded
+          description: Consul cluster has {{ $value }} servers alive. This may lead to cluster break.
       - alert: ServiceHealthcheckFailed
         expr: consul_catalog_service_node_healthy == 0
         for: 5m
