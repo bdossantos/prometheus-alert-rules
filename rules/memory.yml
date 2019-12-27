@@ -10,3 +10,12 @@ groups:
         annotations:
           summary: "Out of memory (instance {{ $labels.instance }})"
           description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: NodeHasConstantOOMKills
+        # Alert if node has more than 3 OOM kills for last hour (1 every 5 minutes).
+        # This is only way to detect OOM kills at the moment.
+        expr: increase(node_vmstat_oom_kill{}[1h]) > 3
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          description: Node {{ $labels.ip }} has constant OOM kills.
