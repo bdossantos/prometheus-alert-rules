@@ -2,8 +2,8 @@
 groups:
   - name: Haproxy
     rules:
-      - alert: haproxy_idle_percentage_average
-        expr: netdata_haproxy_idle_percentage_average < 50
+      - alert: haproxy_process_idle_time_percent
+        expr: haproxy_process_idle_time_percent < 50
         for: 1m
         labels:
           severity: warning
