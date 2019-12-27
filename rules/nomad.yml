@@ -18,7 +18,7 @@ groups:
         annotations:
           summary: "We lost a nomad job (instance {{ $labels.instance }})"
           description: "Detected a lost nomad job {{ humanize $value }}%."
-      - alert: nomad_job_summary_lost
+      - alert: nomad_nomad_job_summary_queued
         expr: nomad_nomad_job_summary_queued > 0
         for: 1m
         labels:
