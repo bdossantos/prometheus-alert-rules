@@ -35,7 +35,7 @@ groups:
           summary: "Unusual disk write rate (instance {{ $labels.instance }})"
           description: "Disk is probably writing too much data (> 50 MB/s)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
       - alert: OutOfDiskSpace
-        expr: node_filesystem_free_bytes{mountpoint ="/rootfs"} / node_filesystem_size_bytes{mountpoint ="/rootfs"} * 100 < 10
+        expr: (node_filesystem_avail_bytes{mountpoint="/rootfs"}  * 100) / node_filesystem_size_bytes{mountpoint="/rootfs"} < 10
         for: 5m
         labels:
           severity: warning
