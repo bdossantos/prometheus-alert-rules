@@ -20,6 +20,15 @@ groups:
           summary: "AlertManager configuration reload (instance {{ $labels.instance }})"
           description: "AlertManager configuration reload error\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
+      - alert: PrometheusNotConnectedToAlertmanager
+        expr: prometheus_notifications_alertmanagers_discovered < 1
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus not connected to alertmanager (instance {{ $labels.instance }})"
+          description: "Prometheus cannot connect the alertmanager\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
       - alert: ExporterDown
         expr: up == 0
         for: 5m
@@ -28,3 +37,84 @@ groups:
         annotations:
           summary: "Exporter down (instance {{ $labels.instance }})"
           description: "Prometheus exporter down\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+      - alert: PrometheusRuleEvaluationFailures
+        expr: increase(prometheus_rule_evaluation_failures_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus rule evaluation failures (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} rule evaluation failures, leading to potentially ignored alerts.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+      - alert: PrometheusTemplateTextExpansionFailures
+        expr: increase(prometheus_template_text_expansion_failures_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus template text expansion failures (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} template text expansion failures\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+      - alert: PrometheusRuleEvaluationSlow
+        expr: prometheus_rule_group_last_duration_seconds < prometheus_rule_group_interval_seconds
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus rule evaluation slow (instance {{ $labels.instance }})"
+          description: "Prometheus rule evaluation took more time than the scheduled interval. I indicates a slower storage backend access or too complex query.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+      - alert: PrometheusTsdbCheckpointDeletionFailures
+        expr: increase(prometheus_tsdb_checkpoint_deletions_failed_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus TSDB checkpoint deletion failures (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} checkpoint deletion failures\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+      - alert: PrometheusTsdbCompactionsFailed
+        expr: increase(prometheus_tsdb_compactions_failed_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus TSDB compactions failed (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} TSDB compactions failures\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+      - alert: PrometheusTsdbHeadTruncationsFailed
+        expr: increase(prometheus_tsdb_head_truncations_failed_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus TSDB head truncations failed (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} TSDB head truncation failures\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+      - alert: PrometheusTsdbReloadFailures
+        expr: increase(prometheus_tsdb_reloads_failures_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus TSDB reload failures (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} TSDB reload failures\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+      - alert: PrometheusTsdbWalCorruptions
+        expr: increase(prometheus_tsdb_wal_corruptions_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus TSDB WAL corruptions (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} TSDB WAL corruptions\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+      - alert: PrometheusTsdbWalTruncationsFailed
+        expr: increase(prometheus_tsdb_wal_truncations_failed_total[3m]) > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Prometheus TSDB WAL truncations failed (instance {{ $labels.instance }})"
+          description: "Prometheus encountered {{ $value }} TSDB WAL truncation failures\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
