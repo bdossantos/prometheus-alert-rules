@@ -10,6 +10,7 @@ groups:
         annotations:
           summary: "RAID Array is degraded! (instance {{ $labels.instance }})"
           description: "Detected a failed disk in the RAID Array\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
       - alert: MdMismatchCntUnsynchronizedBlocksAverage
         expr: netdata_md_mismatch_cnt_unsynchronized_blocks_average > 1024
         for: 60m
@@ -18,3 +19,21 @@ groups:
         annotations:
           summary: "RAID Array have unsynchronized blocks! (instance {{ $labels.instance }})"
           description: "Detected unsynchronized blocks\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+      - alert: HostRaidArrayGotInactive
+        expr: node_md_state{state="inactive"} > 0
+        for: 5m
+        labels:
+          severity: error
+        annotations:
+          summary: "Host RAID array got inactive (instance {{ $labels.instance }})"
+          description: "RAID array {{ $labels.device }} is in degraded state due to one or more disks failures. Number of spare drives is insufficient to fix issue automatically.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+      - alert: HostRaidDiskFailure
+        expr: node_md_disks{state="fail"} > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host RAID disk failure (instance {{ $labels.instance }})"
+          description: "At least one device in RAID array on {{ $labels.instance }} failed. Array {{ $labels.md_device }} needs attention and possibly a disk swap\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
