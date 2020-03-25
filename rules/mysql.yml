@@ -70,7 +70,29 @@ groups:
         labels:
           severity: warning
         annotations:
-          description:
-            The innodb logs are waiting for disk at a rate of {{$value}} /
-            second
+          description: The innodb logs are waiting for disk at a rate of {{$value}} / second
           summary: MySQL innodb log writes stalling
+      - alert: MysqlSlowQueries
+        expr: mysql_global_status_slow_queries > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "MySQL slow queries (instance {{ $labels.instance }})"
+          description: "MySQL server is having some slow queries.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: MysqlTooManyConnections
+        expr: (mysql_global_status_threads_connected / mysql_global_variables_max_connections) * 100 > 80
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "MySQL too many connections (instance {{ $labels.instance }})"
+          description: "More than 80% of MySQL connections are in use on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: MysqlRestarted
+        expr: mysql_global_status_uptime < 60
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "MySQL restarted (instance {{ $labels.instance }})"
+          description: "MySQL has just been restarted, less than one minute ago on {{ $labels.instance }}.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
