@@ -1,0 +1,12 @@
+---
+groups:
+  - name: kernel
+    rules:
+      - alert: HostKernelVersionDeviations
+        expr: count(sum(label_replace(node_uname_info, "kernel", "$1", "release", "([0-9]+.[0-9]+.[0-9]+).*")) by (kernel)) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host kernel version deviations (instance {{ $labels.instance }})"
+          description: "Different kernel versions are running\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
