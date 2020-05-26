@@ -2,15 +2,6 @@
 groups:
   - name: md
     rules:
-      - alert: MdHealthFailedDisks
-        expr: (node_md_disks - node_md_disks_active) != 0
-        for: 1m
-        labels:
-          severity: page
-        annotations:
-          summary: "RAID Array is degraded! (instance {{ $labels.instance }})"
-          description: "Detected a failed disk in the RAID Array\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
-
       - alert: MdMismatchCntUnsynchronizedBlocksAverage
         expr: netdata_md_mismatch_cnt_unsynchronized_blocks_average > 1024
         for: 60m
