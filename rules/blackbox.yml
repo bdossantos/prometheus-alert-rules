@@ -54,3 +54,11 @@ groups:
         annotations:
           summary: "Blackbox probe slow HTTP (instance {{ $labels.instance }})"
           description: "HTTP request took more than 1s\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: BlackboxProbeSlowPing
+        expr: avg_over_time(probe_icmp_duration_seconds[1m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Blackbox probe slow ping (instance {{ $labels.instance }})"
+          description: "Blackbox ping took more than 1s\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
