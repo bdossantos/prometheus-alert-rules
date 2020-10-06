@@ -46,3 +46,11 @@ groups:
         annotations:
           summary: "Blackbox SSL certificate expired (instance {{ $labels.instance }})"
           description: "SSL certificate has expired already\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: BlackboxProbeSlowHttp
+        expr: avg_over_time(probe_http_duration_seconds[1m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Blackbox probe slow HTTP (instance {{ $labels.instance }})"
+          description: "HTTP request took more than 1s\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
