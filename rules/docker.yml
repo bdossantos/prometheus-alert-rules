@@ -42,3 +42,11 @@ groups:
         annotations:
           summary: "Container Volume IO usage (instance {{ $labels.instance }})"
           description: "Container Volume IO usage is above 80%\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: ContainerHighThrottleRate
+        expr: rate(container_cpu_cfs_throttled_seconds_total[3m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container high throttle rate (instance {{ $labels.instance }})"
+          description: "Container is being throttled\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
