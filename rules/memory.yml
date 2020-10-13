@@ -19,3 +19,11 @@ groups:
           severity: page
         annotations:
           description: Node {{ $labels.ip }} has constant OOM kills.
+      - alert: HostMemoryUnderMemoryPressure
+        expr: rate(node_vmstat_pgmajfault[1m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host memory under memory pressure (instance {{ $labels.instance }})"
+          description: "The node is under heavy memory pressure. High rate of major page faults\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
