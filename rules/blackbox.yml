@@ -2,25 +2,23 @@
 groups:
   - name: blackbox
     rules:
-      - alert: UrlProbeFailed
-        expr: probe_success != 1
-        for: 1m
-        labels:
-          scope: blackbox
-          severity: page
-        annotations:
-          description: "{{ $labels.url }} probe failed"
-          summary: URL Probe Failed
-      - alert: UrlProbeSlow
-        expr: probe_http_duration_seconds > 1
+      - alert: BlackboxSlowProbe
+        expr: avg_over_time(probe_duration_seconds[1m]) > 1
         for: 5m
         labels:
-          scope: blackbox
+          severity: warning
+        annotations:
+          summary: Blackbox slow probe (instance {{ $labels.instance }})
+          description: "Blackbox probe took more than 1s to complete\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: BlackboxProbeHttpFailure
+        expr: probe_http_status_code <= 199 OR probe_http_status_code >= 400
+        for: 5m
+        labels:
           severity: critical
         annotations:
-          description: "{{ $labels.url }} probe slow ({{ $value }}s)"
-          summary: URL Probe Slow
-      - alert: DnsLookupTimeProbeSlow
+          summary: Blackbox probe HTTP failure (instance {{ $labels.instance }})
+          description: "HTTP status code is not 200-399\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: BlackboxDnsLookupTimeProbeSlow
         expr: probe_dns_lookup_time_seconds > 0.2
         for: 1m
         labels:
@@ -29,7 +27,7 @@ groups:
         annotations:
           description: "{{ $labels.url }} probe slow ({{ $value }}s)"
           summary: DNS lookup time Probe Slow
-      - alert: SSLCertExpiringSoon
+      - alert: BlackboxSSLCertExpiringSoon
         expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 30
         for: 10m
         labels:
@@ -38,7 +36,7 @@ groups:
         annotations:
           description: "Renew SSL cert of {{ $labels.url }} !"
           summary: SSL Cert Expiring Soon
-      - alert: BlackboxSslCertificateExpired
+      - alert: BlackboxBlackboxSslCertificateExpired
         expr: probe_ssl_earliest_cert_expiry - time() <= 0
         for: 5m
         labels:
