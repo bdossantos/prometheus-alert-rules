@@ -65,7 +65,7 @@ groups:
           summary: Redis missing backup (instance {{ $labels.instance }})
           description: "Redis has not been backuped for 24 hours\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
-      - alert: RedisOutOfMemory
+      - alert: RedisOutOfSystemMemory
         expr: redis_memory_used_bytes / redis_total_system_memory_bytes * 100 > 90
         for: 5m
         labels:
@@ -73,6 +73,15 @@ groups:
         annotations:
           summary: Redis out of memory (instance {{ $labels.instance }})
           description: "Redis is running out of memory (> 90%)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+      - alert: RedisOutOfConfiguredMaxmemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 90
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "Redis out of configured maxmemory (instance {{ $labels.instance }})"
+          description: "Redis is running out of configured maxmemory (> 90%)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
       - alert: RedisTooManyConnections
         expr: redis_connected_clients > 100
