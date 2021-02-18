@@ -2,19 +2,19 @@
 groups:
   - name: CPU
     rules:
-      - alert: high_cpu_usage
-        expr: netdata_cpu_cpu_percentage_average{dimension="idle"} < 30
+      - alert: HostHighCpuLoad
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
         for: 5m
         labels:
           severity: warning
         annotations:
-          description: "{{ $labels.job }} on '{{ $labels.job }}' CPU usage is at {{ humanize $value }}%."
-          summary: High CPU usage alert for '{{ $labels.job }}'
-      - alert: steal_cpu_usage
-        expr: netdata_cpu_cpu_percentage_average{dimension="steal"} > 10
-        for: 20m
+          summary: Host high CPU load (instance {{ $labels.instance }})
+          description: "CPU load is > 80%\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: HostCpuStealNoisyNeighbor
+        expr: avg by(instance) (rate(node_cpu_seconds_total{mode="steal"}[5m])) * 100 > 10
+        for: 5m
         labels:
           severity: warning
         annotations:
-          description: "{{ $labels.job }} on '{{ $labels.job }}' CPU usage is at {{ humanize $value }}%."
-          summary: CPU steal alert for '{{ $labels.job }}'
+          summary: Host CPU steal noisy neighbor (instance {{ $labels.instance }})
+          description: "CPU steal is > 10%. A noisy neighbor is killing VM performances or a spot instance may be out of credit.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"

@@ -2,22 +2,6 @@
 groups:
   - name: disk
     rules:
-      - alert: disk_backlog_milliseconds_average
-        expr: netdata_disk_backlog_milliseconds_average > 4000
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "High disk backlog avergage! (instance {{ $labels.instance }})"
-          description: "Detected high disk backlog latency {{ humanize $value }}%."
-      - alert: low_available_disk_space
-        expr: netdata_disk_space_GiB_average{dimension="avail",family="/"} < 8
-        for: 1m
-        labels:
-          severity: page
-        annotations:
-          summary: "Disk space is low (instance {{ $labels.instance }})"
-          description: "Available disk space for / is {{ humanize $value }}%."
       - alert: UnusualDiskReadRate
         expr: sum by (instance) (irate(node_disk_read_bytes_total[2m])) / 1024 / 1024 > 50
         for: 5m
