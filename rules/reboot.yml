@@ -2,7 +2,7 @@ groups:
   - name: reboot
     rules:
       - alert: NodeRebooted
-        expr: rate(node_boot_time[5m]) > 0
+        expr: rate(node_boot_time_seconds[5m]) > 0
         for: 5m
         labels:
           severity: page
@@ -11,7 +11,7 @@ groups:
           description: Machine ({{ $labels.instance }}) just rebooted.
 
       - alert: NodeRebootsTooOften
-        expr: changes(node_boot_time{job="node"}[1d]) > 1
+        expr: changes(node_boot_time_seconds{job="node"}[1d]) > 1
         for: 5m
         labels:
           severity: page
