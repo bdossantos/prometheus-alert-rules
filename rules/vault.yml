@@ -1,0 +1,11 @@
+groups:
+  - name: vault
+    rules:
+      - alert: VaultUnsealed
+        expr: vault_core_unsealed != 1
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          summary: "Vault instance `{{ $labels.instance }}` is sealed"
+          description: "The Vault instance at `{{ $labels.instance }}` has been sealed for the last 1m"
