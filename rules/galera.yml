@@ -74,7 +74,7 @@ groups:
           description: "A Galera Cluster node on `{{ $labels.instance }}` has been paused due to flow control during the last 1m"
 
       - alert: MySQLGaleraCertFailures
-        expr: (mysql_global_status_wsrep_local_cert_failures > 1)
+        expr: (rate(mysql_global_status_wsrep_local_cert_failures[5m]) > 1)
         for: 1m
         labels:
           severity: page
