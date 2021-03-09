@@ -82,6 +82,15 @@ groups:
           summary: "Galera Cluster node on `{{ $labels.instance }}` have cert failures"
           description: "A Galera Cluster node on `{{ $labels.instance }}` has cert failures during the last 1m"
 
+      - alert: MySQLGaleraBfAborts
+        expr: (rate(mysql_global_status_wsrep_local_bf_aborts[5m]) > 0)
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          summary: "Galera Cluster node on `{{ $labels.instance }}` have transactions that were aborted "
+          description: "A Galera Cluster node on `{{ $labels.instance }}` has local transactions that were aborted by slave transactions while in execution."
+
       - alert: MySQLGaleraFlowControlPauseTooHigh
         expr: (mysql_global_status_wsrep_flow_control_paused > 0.2 and mysql_global_status_wsrep_flow_control_paused < 1)
         for: 1m
