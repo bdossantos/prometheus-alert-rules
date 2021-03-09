@@ -73,6 +73,15 @@ groups:
           summary: "Galera Cluster node on `{{ $labels.instance }}` paused due to Flow Control"
           description: "A Galera Cluster node on `{{ $labels.instance }}` has been paused due to flow control during the last 1m"
 
+      - alert: MySQLGaleraCertFailures
+        expr: (rate(mysql_global_status_wsrep_local_cert_failures[5m]) > 1)
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          summary: "Galera Cluster node on `{{ $labels.instance }}` have cert failures"
+          description: "A Galera Cluster node on `{{ $labels.instance }}` has cert failures during the last 1m"
+
       - alert: MySQLGaleraFlowControlPauseTooHigh
         expr: (mysql_global_status_wsrep_flow_control_paused > 0.2 and mysql_global_status_wsrep_flow_control_paused < 1)
         for: 1m
