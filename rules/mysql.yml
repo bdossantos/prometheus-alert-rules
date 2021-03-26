@@ -33,6 +33,14 @@ groups:
             "{{$labels.job}} on {{$labels.instance}} is a donor (hotbackup)
             and is falling behind (queue size {{$value}})."
           summary: xtradb cluster donor node falling behind
+      - alert: MysqlDown
+        expr: mysql_up == 0
+        for: 0m
+        labels:
+          severity: page
+        annotations:
+          summary: "MySQL down (instance {{ $labels.instance }})"
+          description: "MySQL instance is down on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
       - alert: MysqlSlaveReplicationLag
         expr: mysql_slave_status_master_server_id > 0 and ON (instance) (mysql_slave_status_seconds_behind_master - mysql_slave_status_sql_delay) > 30
         for: 1m
