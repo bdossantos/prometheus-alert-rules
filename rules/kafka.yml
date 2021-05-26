@@ -30,7 +30,7 @@ groups:
 
       - alert: KafkaConsumerGroupLag
         expr: kafka_consumergroup_lag > 0
-        for: 15m
+        for: 30m
         labels:
           severity: warning
         annotations:
