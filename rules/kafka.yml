@@ -11,7 +11,7 @@ groups:
           description: "Kafka topic in-sync partition\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
       - alert: KafkaConsumersGroup
-        expr: sum(kafka_consumergroup_lag) by (consumergroup) > 1000
+        expr: sum(kafka_consumergroup_lag) by (consumergroup) > 50000
         for: 1m
         labels:
           severity: page
@@ -30,9 +30,9 @@ groups:
 
       - alert: KafkaConsumerGroupLag
         expr: kafka_consumergroup_lag > 0
-        for: 30m
+        for: 60m
         labels:
           severity: warning
         annotations:
           summary: "Kafka consumer group lag (instance {{ $labels.instance }})"
-          description: "Kafka consumer group has a 30 minutes and increasing lag\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Kafka consumer group has a 60 minutes and increasing lag\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
