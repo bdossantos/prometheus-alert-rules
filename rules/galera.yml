@@ -14,7 +14,7 @@ groups:
         expr: (mysql_global_status_wsrep_cluster_size % 2 != 1)
         for: 1m
         labels:
-          severity: page
+          severity: warning
         annotations:
           summary: "Galera Cluster on `{{ $labels.instance }}` has even # of nodes"
           description: "Galera Cluster on `{{ $labels.instance }}` had an even number of nodes ({{ $value }}) during the last 1m"
