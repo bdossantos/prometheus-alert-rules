@@ -1,0 +1,11 @@
+groups:
+  - name: backup
+    rules:
+      - alert: BackupFailed
+        expr: exit_code{job="backup"} != 0
+        for: 12h
+        labels:
+          severity: page
+        annotations:
+          summary: "Backup job failed on `{{ $labels.instance }}`"
+          description: "Backup cron job failed on `{{ $labels.instance }}` with the following exit code ({{ $value }})"
