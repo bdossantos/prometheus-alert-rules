@@ -18,7 +18,7 @@ groups:
         annotations:
           summary: "We lost a nomad job (instance {{ $labels.instance }})"
           description: "Detected a lost nomad job {{ humanize $value }}%."
-      - alert: nomad_nomad_job_summary_queued
+      - alert: NomadJobSummaryQueued
         expr: increase(nomad_nomad_job_summary_queued[2m]) > 10
         for: 2m
         labels:
@@ -26,7 +26,7 @@ groups:
         annotations:
           summary: "Some nomad job are queued (instance {{ $labels.instance }})"
           description: "Detected queued nomad job(s) {{ humanize $value }}%."
-      - alert: nomad_nomad_blocked_evals_total_blocked
+      - alert: NomadBlockedEvalsTotalBlocked
         expr: increase(nomad_nomad_blocked_evals_total_blocked[2m]) > 10
         for: 2m
         labels:
