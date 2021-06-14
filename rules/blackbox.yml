@@ -30,27 +30,26 @@ groups:
         expr: probe_dns_lookup_time_seconds > 0.2
         for: 1m
         labels:
-          scope: blackbox
-          severity: critical
+          severity: page
         annotations:
           description: "{{ $labels.url }} probe slow ({{ $value }}s)"
           summary: DNS lookup time Probe Slow
       - alert: BlackboxSslCertificateWillExpireSoon
-        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 30
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: Blackbox SSL certificate will expire soon (instance {{ $labels.instance }})
-          description: "SSL certificate expires in 30 days\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
-      - alert: BlackboxSslCertificateWillExpireSoon
-        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 3
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 15
         for: 5m
         labels:
           severity: page
         annotations:
           summary: Blackbox SSL certificate will expire soon (instance {{ $labels.instance }})
-          description: "SSL certificate expires in 3 days\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "SSL certificate expires in 15 days\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: BlackboxSslCertificateWillExpireSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 7
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: Blackbox SSL certificate will expire soon (instance {{ $labels.instance }})
+          description: "SSL certificate expires in 7 days\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
       - alert: BlackboxSslCertificateExpired
         expr: probe_ssl_earliest_cert_expiry - time() <= 0
         for: 5m
