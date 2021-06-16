@@ -3,7 +3,7 @@ groups:
     rules:
       - alert: NodeRebooted
         expr: rate(node_boot_time_seconds[5m]) > 0
-        for: 5m
+        for: 2m
         labels:
           severity: page
         annotations:
@@ -12,7 +12,7 @@ groups:
 
       - alert: NodeRebootsTooOften
         expr: changes(node_boot_time_seconds{job="node"}[1d]) > 1
-        for: 5m
+        for: 2m
         labels:
           severity: page
         annotations:
