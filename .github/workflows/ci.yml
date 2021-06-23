@@ -12,6 +12,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run test
+      - uses: actions/cache@v2.1.6
+        id: cache-shellcheck
+        with:
+          path: bin/shellcheck
+          key: ${{ runner.os }}-shellcheck
+          restore-keys: |
+            ${{ runner.os }}-shellcheck
+      - name: Setup bin directories
         run: |
-          make test
+          mkdir -p "$(pwd)/bin"
+          export PATH=$(pwd)/bin:$HOME/.local/bin:$PATH
+      - name: Get shellcheck binary
+        if: steps.cache-shellcheck.outputs.cache-hit != 'true'
+        run: |
+          wget -qO- https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.x86_64.tar.xz | tar -xJv
+          mv "shellcheck-stable/shellcheck" "$(pwd)/bin/shellcheck"
+          chmod +x "$(pwd)/bin/shellcheck"
+      - name: Run test and shellcheck
+        run: |
+          timeout 10m make test shellcheck
