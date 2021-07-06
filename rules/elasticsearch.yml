@@ -2,48 +2,48 @@
 groups:
   - name: elasticsearch
     rules:
-      - alert: elasticsearch_cluster_yellow
-        expr: netdata_elastic_cluster_health_status_status_average{dimension="yellow"} == 1
+      - alert: elasticsearchClusterYellow
+        expr: elasticsearch_cluster_health_status{color="yellow"} == 1
         for: 1m
         labels:
           severity: warning
         annotations:
           description: "Elastic Cluster is yellow\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
           summary: "Elasticsearch Cluster is yellow (instance {{ $labels.instance }})"
-      - alert: elasticsearch_cluster_red
-        expr: netdata_elastic_cluster_health_status_status_average{dimension="red"} == 1
+      - alert: elasticsearchClusterRed
+        expr: elasticsearch_cluster_health_status{color="red"} == 1
         for: 1m
         labels:
           severity: page
         annotations:
           description: "Elastic Cluster is red\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
           summary: "Elasticsearch Cluster is red (instance {{ $labels.instance }})"
-      - alert: elastic_cluster_health_pending_tasks_tasks_average
-        expr: netdata_elastic_cluster_health_pending_tasks_tasks_average > 1
+      - alert: elasticClusterHealthPendingTasksTasksAverage
+        expr: elasticsearch_cluster_health_number_of_pending_tasks > 1
         for: 5m
         labels:
-          severity: warning
+          severity: page
         annotations:
           description: "Elasticsearch pending tasks average is at {{ humanize $value }}%."
           summary: "Elasticsearch pending tasks average is too high (instance {{ $labels.instance }})"
-      - alert: elastic_cluster_number_of_relocating_shards
-        expr: avg(netdata_elastic_cluster_health_shards_shards_average{dimension="relocating_shards"}) > 0
+      - alert: elasticClusterNumberOfRelocatingShards
+        expr: avg(elasticsearch_cluster_health_relocating_shards) > 0
         for: 10m
         labels:
-          severity: warning
+          severity: page
         annotations:
           summary: "Number of relocation shards (instance {{ $labels.instance }})"
           description: "Number of relocation shards for 10 min\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
-      - alert: elastic_cluster_number_of_initializing_shards
-        expr: avg(netdata_elastic_cluster_health_shards_shards_average{dimension="initializing"}) > 0
+      - alert: elasticClusterNumberOfInitializingShards
+        expr: avg(elasticsearch_cluster_health_initializing_shards) > 0
         for: 5m
         labels:
-          severity: warning
+          severity: page
         annotations:
           summary: "Number of initializing shards (instance {{ $labels.instance }})"
           description: "Number of initializing shards for 5 min\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
-      - alert: elastic_cluster_number_of_unassigned_shards
-        expr: avg(netdata_elastic_cluster_health_shards_shards_average{dimension="initializing"}) > 0
+      - alert: elasticClusterNumberOfUnassignedShards
+        expr: avg(elasticsearch_cluster_health_unassigned_shards) > 0
         for: 5m
         labels:
           severity: page
@@ -51,18 +51,10 @@ groups:
           summary: "Number of unassigned shards (instance {{ $labels.instance }})"
           description: "Number of unassigned shards for 5 min\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
       - alert: ElasticHeapUsageTooHigh
-        expr: netdata_elastic_jvm_heap_percentage_average > 90
+        expr: (elasticsearch_jvm_memory_used_bytes{area="heap"} / elasticsearch_jvm_memory_max_bytes{area="heap"} * 100) > 90
         for: 5m
         labels:
           severity: page
         annotations:
           summary: "Elasticsearch Heap Usage Too High (instance {{ $labels.instance }})"
           description: "The heap usage is over 90% for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
-      - alert: ElasticHeapUsageWarning
-        expr: netdata_elastic_jvm_heap_percentage_average > 80
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Elasticsearch Heap Usage Too High (instance {{ $labels.instance }})"
-          description: "The heap usage is over 80% for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
