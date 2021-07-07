@@ -66,3 +66,11 @@ groups:
         annotations:
           summary: "Number of JVM GC runs in second by nodes is too High (instance {{ $labels.instance }})"
           description: "The Number of JVM GC runs in second by nodes is > 1 GC/s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: ElasticGcRuntimeTooHigh
+        expr: (rate(elasticsearch_jvm_gc_collection_seconds_sum[5m]) * 1000) > 50
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "JVM GC runtime in second by nodes is too High (instance {{ $labels.instance }})"
+          description: "The JVM GC runtime in second by nodes Threshold is > 50ms / s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
