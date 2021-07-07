@@ -74,3 +74,11 @@ groups:
         annotations:
           summary: "JVM GC runtime in second by nodes is too High (instance {{ $labels.instance }})"
           description: "The JVM GC runtime in second by nodes Threshold is > 50ms / s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: ElasticCpuTooHigh
+        expr: avg(elasticsearch_process_cpu_percent) > 50
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Average CPU of all nodes is too High (instance {{ $labels.instance }})"
+          description: "The average cpu is > 50% / s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
