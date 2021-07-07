@@ -58,3 +58,11 @@ groups:
         annotations:
           summary: "Elasticsearch Heap Usage Too High (instance {{ $labels.instance }})"
           description: "The heap usage is over 90% for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: ElasticGcCollectionSecondsTooHigh
+        expr: rate(elasticsearch_jvm_gc_collection_seconds_count[5m]) > 1
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Number of JVM GC runs in second by nodes is too High (instance {{ $labels.instance }})"
+          description: "The Number of JVM GC runs in second by nodes is > 1 GC/s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
