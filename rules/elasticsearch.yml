@@ -90,3 +90,11 @@ groups:
         annotations:
           summary: "Indice store throttle in second by nodes is too High (instance {{ $labels.instance }})"
           description: "Throttle indices store is > 0s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: ElasticsearchIndicesMergesTimeTooHigh
+        expr: rate(elasticsearch_indices_merges_total_time_seconds_total[5m]) > 2
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Indice merge time in second by nodes is too High (instance {{ $labels.instance }})"
+          description: "Indices merge time is > 2s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
