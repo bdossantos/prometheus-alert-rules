@@ -82,3 +82,11 @@ groups:
         annotations:
           summary: "Average CPU of all nodes is too High (instance {{ $labels.instance }})"
           description: "The average cpu is > 50% / s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: ElasticsearchIndicesStoreThrottleTimeTooHigh
+        expr: rate(elasticsearch_indices_store_throttle_time_seconds_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Indice store throttle in second by nodes is too High (instance {{ $labels.instance }})"
+          description: "Throttle indices store is > 0s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
