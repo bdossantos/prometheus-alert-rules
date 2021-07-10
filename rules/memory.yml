@@ -27,3 +27,11 @@ groups:
         annotations:
           summary: "Host memory under memory pressure (instance {{ $labels.instance }})"
           description: "The node is under heavy memory pressure. High rate of major page faults\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: HostEdacCorrectableErrorsDetected
+        expr: increase(node_edac_correctable_errors_total[1m]) > 0
+        for: 0m
+        labels:
+          severity: page
+        annotations:
+          summary: "Host EDAC Correctable Errors detected (instance {{ $labels.instance }})"
+          description: "Host {{ $labels.instance }} has had {{ printf \"%.0f\" $value }} correctable memory errors reported by EDAC in the last 5 minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
