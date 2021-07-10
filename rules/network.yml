@@ -18,3 +18,11 @@ groups:
         annotations:
           summary: "Unusual network throughput out (instance {{ $labels.instance }})"
           description: "Host network interfaces are probably sending too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: HostNetworkInterfaceSaturated
+        expr: (rate(node_network_receive_bytes_total{device!~"^tap.*"}[1m]) + rate(node_network_transmit_bytes_total{device!~"^tap.*"}[1m])) / node_network_speed_bytes{device!~"^tap.*"} > 0.8
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          summary: "Host Network Interface Saturated (instance {{ $labels.instance }})"
+          description: "The network interface \"{{ $labels.interface }}\" on \"{{ $labels.instance }}\" is getting overloaded.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
