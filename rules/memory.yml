@@ -3,8 +3,8 @@ groups:
   - name: memory
     rules:
       - alert: OutOfMemory
-        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
-        for: 5m
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 5
+        for: 0m
         labels:
           severity: page
         annotations:
