@@ -68,12 +68,12 @@ groups:
           description: "The Number of JVM GC runs in second by nodes is > 1 GC/s for 5m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: ElasticGcRuntimeTooHigh
         expr: (rate(elasticsearch_jvm_gc_collection_seconds_sum[5m]) * 1000) > 50
-        for: 5m
+        for: 10m
         labels:
           severity: page
         annotations:
           summary: "JVM GC runtime in second by nodes is too High (instance {{ $labels.instance }})"
-          description: "The JVM GC runtime in second by nodes Threshold is > 50ms / s for 5m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
+          description: "The JVM GC runtime in second by nodes Threshold is > 50ms / s for 10m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: ElasticCpuTooHigh
         expr: avg(elasticsearch_process_cpu_percent) > 50
         for: 5m
@@ -92,9 +92,9 @@ groups:
           description: "Throttle indices store is > 0s for 5m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: ElasticsearchIndicesMergesTimeTooHigh
         expr: rate(elasticsearch_indices_merges_total_time_seconds_total[5m]) > 2
-        for: 5m
+        for: 10m
         labels:
           severity: page
         annotations:
           summary: "Indice merge time in second by nodes is too High (instance {{ $labels.instance }})"
-          description: "Indices merge time is > 2s for 5m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
+          description: "Indices merge time is > 2s for 10m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
