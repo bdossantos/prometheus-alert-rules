@@ -8,7 +8,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          description: "Elastic Cluster is yellow\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Elastic Cluster is yellow\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
           summary: "Elasticsearch Cluster is yellow (instance {{ $labels.instance }})"
       - alert: elasticsearchClusterRed
         expr: elasticsearch_cluster_health_status{color="red"} == 1
@@ -16,7 +16,7 @@ groups:
         labels:
           severity: page
         annotations:
-          description: "Elastic Cluster is red\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Elastic Cluster is red\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
           summary: "Elasticsearch Cluster is red (instance {{ $labels.instance }})"
       - alert: elasticClusterHealthPendingTasksTasksAverage
         expr: elasticsearch_cluster_health_number_of_pending_tasks > 1
@@ -33,7 +33,7 @@ groups:
           severity: page
         annotations:
           summary: "Number of relocation shards (instance {{ $labels.instance }})"
-          description: "Number of relocation shards for 10 min\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Number of relocation shards for 10 min\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: elasticClusterNumberOfInitializingShards
         expr: avg(elasticsearch_cluster_health_initializing_shards) > 0
         for: 5m
@@ -41,7 +41,7 @@ groups:
           severity: page
         annotations:
           summary: "Number of initializing shards (instance {{ $labels.instance }})"
-          description: "Number of initializing shards for 5 min\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Number of initializing shards for 5 min\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: elasticClusterNumberOfUnassignedShards
         expr: avg(elasticsearch_cluster_health_unassigned_shards) > 0
         for: 5m
@@ -49,7 +49,7 @@ groups:
           severity: page
         annotations:
           summary: "Number of unassigned shards (instance {{ $labels.instance }})"
-          description: "Number of unassigned shards for 5 min\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Number of unassigned shards for 5 min\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: ElasticHeapUsageTooHigh
         expr: (elasticsearch_jvm_memory_used_bytes{area="heap"} / elasticsearch_jvm_memory_max_bytes{area="heap"} * 100) > 90
         for: 5m
@@ -57,7 +57,7 @@ groups:
           severity: page
         annotations:
           summary: "Elasticsearch Heap Usage Too High (instance {{ $labels.instance }})"
-          description: "The heap usage is over 90% for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "The heap usage is over 90% for 5m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: ElasticGcCollectionSecondsTooHigh
         expr: rate(elasticsearch_jvm_gc_collection_seconds_count[5m]) > 1
         for: 5m
@@ -65,7 +65,7 @@ groups:
           severity: page
         annotations:
           summary: "Number of JVM GC runs in second by nodes is too High (instance {{ $labels.instance }})"
-          description: "The Number of JVM GC runs in second by nodes is > 1 GC/s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "The Number of JVM GC runs in second by nodes is > 1 GC/s for 5m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: ElasticGcRuntimeTooHigh
         expr: (rate(elasticsearch_jvm_gc_collection_seconds_sum[5m]) * 1000) > 50
         for: 5m
@@ -73,7 +73,7 @@ groups:
           severity: page
         annotations:
           summary: "JVM GC runtime in second by nodes is too High (instance {{ $labels.instance }})"
-          description: "The JVM GC runtime in second by nodes Threshold is > 50ms / s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "The JVM GC runtime in second by nodes Threshold is > 50ms / s for 5m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: ElasticCpuTooHigh
         expr: avg(elasticsearch_process_cpu_percent) > 50
         for: 5m
@@ -81,7 +81,7 @@ groups:
           severity: page
         annotations:
           summary: "Average CPU of all nodes is too High (instance {{ $labels.instance }})"
-          description: "The average cpu is > 50% / s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "The average cpu is > 50% / s for 5m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: ElasticsearchIndicesStoreThrottleTimeTooHigh
         expr: rate(elasticsearch_indices_store_throttle_time_seconds_total[5m]) > 0
         for: 5m
@@ -89,7 +89,7 @@ groups:
           severity: page
         annotations:
           summary: "Indice store throttle in second by nodes is too High (instance {{ $labels.instance }})"
-          description: "Throttle indices store is > 0s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Throttle indices store is > 0s for 5m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: ElasticsearchIndicesMergesTimeTooHigh
         expr: rate(elasticsearch_indices_merges_total_time_seconds_total[5m]) > 2
         for: 5m
@@ -97,4 +97,4 @@ groups:
           severity: page
         annotations:
           summary: "Indice merge time in second by nodes is too High (instance {{ $labels.instance }})"
-          description: "Indices merge time is > 2s for 5m\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Indices merge time is > 2s for 5m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
