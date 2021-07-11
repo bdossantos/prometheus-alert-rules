@@ -3,7 +3,7 @@ groups:
   - name: disk
     rules:
       - alert: UnusualDiskReadRate
-        expr: sum by (instance) (irate(node_disk_read_bytes_total[2m])) / 1024 / 1024 > 50
+        expr: sum by (instance) (rate(node_disk_read_bytes_total[2m])) / 1024 / 1024 > 50
         for: 5m
         labels:
           severity: warning
@@ -11,7 +11,7 @@ groups:
           summary: "Unusual disk read rate (instance {{ $labels.instance }})"
           description: "Disk is probably reading too much data (> 50 MB/s)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
       - alert: UnusualDiskWriteRate
-        expr: sum by (instance) (irate(node_disk_written_bytes_total[2m])) / 1024 / 1024 > 50
+        expr: sum by (instance) (rate(node_disk_written_bytes_total[2m])) / 1024 / 1024 > 50
         for: 5m
         labels:
           severity: warning
