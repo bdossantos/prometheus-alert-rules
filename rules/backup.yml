@@ -9,3 +9,11 @@ groups:
         annotations:
           summary: "Backup job failed on `{{ $labels.instance }}`"
           description: "Backup cron job failed on `{{ $labels.instance }}` with the following exit code ({{ $value }})"
+      - alert: MissingDailyBackupStatus
+        expr: count(exit_code{job="backup"} offset 24h) by (instance) unless count(exit_code{job="backup"}) by (instance)
+        for: 1h
+        labels:
+          severity: page
+        annotations:
+          summary: "Daily backup job status is missing on `{{ $labels.instance }}`"
+          description: "Automatic scheduled backup appear to not running on `{{ $labels.instance }}`"
