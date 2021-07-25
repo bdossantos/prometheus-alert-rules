@@ -28,12 +28,12 @@ groups:
           summary: "Elasticsearch pending tasks average is too high (instance {{ $labels.instance }})"
       - alert: elasticClusterNumberOfRelocatingShards
         expr: avg(elasticsearch_cluster_health_relocating_shards) > 0
-        for: 10m
+        for: 30m
         labels:
           severity: page
         annotations:
           summary: "Number of relocation shards (instance {{ $labels.instance }})"
-          description: "Number of relocation shards for 10 min\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
+          description: "Number of relocation shards for 30 min\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: elasticClusterNumberOfInitializingShards
         expr: avg(elasticsearch_cluster_health_initializing_shards) > 0
         for: 5m
