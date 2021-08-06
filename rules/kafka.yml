@@ -11,8 +11,8 @@ groups:
           description: "Kafka topic in-sync partition\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
       - alert: KafkaConsumersGroup
-        expr: sum(kafka_consumergroup_lag) by (consumergroup) > 50000
-        for: 1m
+        expr: sum(kafka_consumergroup_lag) by (consumergroup) > 500000
+        for: 10m
         labels:
           severity: page
         annotations:
