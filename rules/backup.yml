@@ -13,7 +13,7 @@ groups:
         expr: count(exit_code{job="backup"} offset 24h) by (instance) unless count(exit_code{job="backup"}) by (instance)
         for: 1h
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Daily backup job status is missing on `{{ $labels.instance }}`"
           description: "Automatic scheduled backup appear to not running on `{{ $labels.instance }}`"
