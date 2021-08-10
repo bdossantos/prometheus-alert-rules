@@ -12,7 +12,7 @@ groups:
 
       - alert: KafkaConsumersGroup
         expr: sum(kafka_consumergroup_lag) by (consumergroup) > 500000
-        for: 10m
+        for: 60m
         labels:
           severity: page
         annotations:
