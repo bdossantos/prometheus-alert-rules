@@ -1,7 +1,7 @@
 groups:
   - name: vault
     rules:
-      - alert: VaultUnsealed
+      - alert: VaultSealed
         expr: vault_core_unsealed != 1
         for: 1m
         labels:
@@ -9,3 +9,10 @@ groups:
         annotations:
           summary: "Vault instance `{{ $labels.instance }}` is sealed"
           description: "The Vault instance at `{{ $labels.instance }}` has been sealed for the last 1m"
+      - alert: VaultDown
+        expr: up{job="vault"} == 0
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          description: "Vault instance is down on ({{ $labels.ip }})"
