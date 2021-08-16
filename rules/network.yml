@@ -25,7 +25,7 @@ groups:
           severity: page
         annotations:
           summary: "Host Network Interface Saturated (instance {{ $labels.instance }})"
-          description: "The network interface \"{{ $labels.interface }}\" on \"{{ $labels.instance }}\" is getting overloaded.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "The network interface \"{{ $labels.device }}\" on \"{{ $labels.instance }}\" is getting overloaded.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostConntrackLimit
         expr: node_nf_conntrack_entries / node_nf_conntrack_entries_limit > 0.8
         for: 5m
