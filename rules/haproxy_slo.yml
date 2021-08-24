@@ -1,0 +1,52 @@
+---
+groups:
+  - name: Haproxy SLI/SLO
+    rules:
+      # SLI
+      ## Error rate
+      - record: proxy:haproxy_backend_http_errors_per_response:ratio_rate5m
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[5m]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[5m]))
+      - record: proxy:haproxy_backend_http_errors_per_response:ratio_rate30m
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[30m]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[30m]))
+      - record: proxy:haproxy_backend_http_errors_per_response:ratio_rate1h
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[1h]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[1h]))
+      - record: proxy:haproxy_backend_http_errors_per_response:ratio_rate2h
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[2h]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[2h]))
+      - record: proxy:haproxy_backend_http_errors_per_response:ratio_rate6h
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[6h]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[6h]))
+      - record: proxy:haproxy_backend_http_errors_per_response:ratio_rate1d
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[1d]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[1d]))
+      - record: proxy:haproxy_backend_http_errors_per_response:ratio_rate3d
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[3d]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[3d]))
+      ## Latency
+      - record: proxy:haproxy_server_response_time_average_seconds:avg_over_time5m
+        expr: |
+          max by (proxy) (avg_over_time(haproxy_server_response_time_average_seconds[5m]))
+      - record: proxy:haproxy_server_response_time_average_seconds:avg_over_time30m
+        expr: |
+          max by (proxy) (avg_over_time(haproxy_server_response_time_average_seconds[30m]))
+      - record: proxy:haproxy_server_response_time_average_seconds:avg_over_time60m
+        expr: |
+          max by (proxy) (avg_over_time(haproxy_server_response_time_average_seconds[60m]))
+      # TODO: SLO
