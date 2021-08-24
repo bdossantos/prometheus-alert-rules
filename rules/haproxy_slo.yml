@@ -1,0 +1,39 @@
+---
+groups:
+  - name: Haproxy SLI/SLO
+    rules:
+      - record: backend:haproxy_backend_http_errors_per_response:ratio_rate5m
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[5m]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[5m]))
+      - record: backend:haproxy_backend_http_errors_per_response:ratio_rate30m
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[30m]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[30m]))
+      - record: backend:haproxy_backend_http_errors_per_response:ratio_rate1h
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[1h]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[1h]))
+      - record: backend:haproxy_backend_http_errors_per_response:ratio_rate2h
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[2h]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[2h]))
+      - record: backend:haproxy_backend_http_errors_per_response:ratio_rate6h
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[6h]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[6h]))
+      - record: backend:haproxy_backend_http_errors_per_response:ratio_rate1d
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[1d]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[1d]))
+      - record: backend:haproxy_backend_http_errors_per_response:ratio_rate3d
+        expr: |
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[3d]))
+          /
+          sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[3d]))
