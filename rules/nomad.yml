@@ -3,7 +3,7 @@ groups:
   - name: nomad
     rules:
       - alert: NomadJobSummaryFailed
-        expr: increase(nomad_nomad_job_summary_failed[2m]) > 0
+        expr: sum by (exported_job) (increase(nomad_nomad_job_summary_failed[2m])) > 0
         for: 0m
         labels:
           severity: page
@@ -11,24 +11,24 @@ groups:
           summary: "A nomad job failed (instance {{ $labels.instance }})"
           description: "Detected a failed nomad job {{ humanize $value }}%."
       - alert: NomadJobSummaryLost
-        expr: increase(nomad_nomad_job_summary_lost[2m]) > 10
-        for: 2m
+        expr: sum by (exported_job) (increase(nomad_nomad_job_summary_lost[2m])) > 0
+        for: 0m
         labels:
           severity: page
         annotations:
           summary: "We lost a nomad job (instance {{ $labels.instance }})"
           description: "Detected a lost nomad job {{ humanize $value }}%."
       - alert: NomadJobSummaryQueued
-        expr: increase(nomad_nomad_job_summary_queued[2m]) > 10
-        for: 2m
+        expr: sum by (exported_job) (increase(nomad_nomad_job_summary_queued[2m])) > 0
+        for: 0m
         labels:
           severity: page
         annotations:
           summary: "Some nomad job are queued (instance {{ $labels.instance }})"
           description: "Detected queued nomad job(s) {{ humanize $value }}%."
       - alert: NomadBlockedEvalsTotalBlocked
-        expr: increase(nomad_nomad_blocked_evals_total_blocked[2m]) > 10
-        for: 2m
+        expr: increase(nomad_nomad_blocked_evals_total_blocked[2m]) > 0
+        for: 0m
         labels:
           severity: page
         annotations:
