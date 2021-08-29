@@ -40,7 +40,7 @@ groups:
 
       - alert: HaproxyProxyMaxActiveSession
         expr: (sum by (proxy) (rate(haproxy_server_limit_sessions[1m]))) > 0
-        for: 1m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -49,7 +49,7 @@ groups:
 
       - alert: HaproxyPendingRequests
         expr: (sum by (proxy) (rate(haproxy_backend_current_queue[2m]))) > 0
-        for: 1m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -57,35 +57,26 @@ groups:
           description: "Some HAProxy requests are pending on {{ $labels.proxy }}/{{ $labels.proxy }} backend\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
       - alert: HaproxyHttpSlowingDown
-        expr: (avg by (proxy) (haproxy_backend_max_total_time_seconds)) > 1
-        for: 1m
+        expr: (max by (proxy) (rate(haproxy_backend_max_total_time_seconds[1m]))) > 1
+        for: 5m
         labels:
-          severity: warning
+          severity: page
         annotations:
           summary: HAProxy HTTP slowing down (instance {{ $labels.instance }})
           description: "Average request time is increasing\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
       - alert: HaproxyRetryHigh
         expr: (sum by (proxy) (rate(haproxy_backend_retry_warnings_total[1m]))) > 10
-        for: 2m
+        for: 5m
         labels:
           severity: page
         annotations:
           summary: HAProxy retry high (instance {{ $labels.instance }})
           description: "High rate of retry on {{ $labels.proxy }}/{{ $labels.proxy }} backend\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
-      - alert: HaproxyProxyDown
-        expr: haproxy_backend_up == 0
-        for: 0m
-        labels:
-          severity: critical
-        annotations:
-          summary: HAProxy backend down (instance {{ $labels.instance }})
-          description: "HAProxy backend is down\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
-
       - alert: HaproxyFrontendSecurityBlockedRequests
         expr: (sum by (proxy) (rate(haproxy_frontend_denied_connections_total[2m]))) > 10
-        for: 2m
+        for: 1m
         labels:
           severity: page
         annotations:
@@ -94,7 +85,7 @@ groups:
 
       - alert: HaproxyServerHealthcheckFailure
         expr: (increase(haproxy_server_check_failures_total[1m])) > 0
-        for: 1m
+        for: 5m
         labels:
           severity: warning
         annotations:
