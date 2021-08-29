@@ -28,7 +28,7 @@ groups:
           summary: "Elasticsearch pending tasks average is too high (instance {{ $labels.instance }})"
       - alert: elasticClusterNumberOfRelocatingShards
         expr: avg(elasticsearch_cluster_health_relocating_shards) > 0
-        for: 30m
+        for: 60m
         labels:
           severity: page
         annotations:
@@ -92,7 +92,7 @@ groups:
           description: "Throttle indices store is > 0s for 5m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: ElasticsearchIndicesMergesTimeTooHigh
         expr: rate(elasticsearch_indices_merges_total_time_seconds_total[5m]) > 4
-        for: 30m
+        for: 60m
         labels:
           severity: page
         annotations:
