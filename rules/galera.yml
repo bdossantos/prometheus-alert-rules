@@ -48,25 +48,25 @@ groups:
 
       - alert: MySQLGaleraOutOfSync
         expr: (mysql_global_status_wsrep_local_state != 4 AND mysql_global_variables_wsrep_desync == 0)
-        for: 1m
+        for: 10m
         labels:
-          severity: warning
+          severity: page
         annotations:
           summary: "Galera cluster node on `{{ $labels.instance }}` out of sync"
           description: "A Galera cluster node on `{{ $labels.instance }}` has not been in sync ({{ $value }} != 4) during the last 1m"
 
       - alert: MySQLGaleraDonorFallingBehind
         expr: (mysql_global_status_wsrep_local_state == 2 AND mysql_global_status_wsrep_local_recv_queue > 1)
-        for: 1m
+        for: 10m
         labels:
-          severity: warning
+          severity: page
         annotations:
           summary: "Galera xtradb cluster donor node on `{{ $labels.instance }}` falling behind"
           description: "A Galera cluster node on `{{ $labels.instance }}` is a donor (hotbackup) and has been falling behind (queue size {{ $value }}) during the last 1m"
 
       - alert: MySQLGaleraFlowControlPaused
         expr: (mysql_global_status_wsrep_flow_control_paused == 1)
-        for: 1m
+        for: 5m
         labels:
           severity: page
         annotations:
@@ -75,7 +75,7 @@ groups:
 
       - alert: MySQLGaleraCertFailures
         expr: (rate(mysql_global_status_wsrep_local_cert_failures[5m]) > 1)
-        for: 1m
+        for: 5m
         labels:
           severity: page
         annotations:
@@ -93,28 +93,27 @@ groups:
 
       - alert: MySQLGaleraFlowControlPauseTooHigh
         expr: (mysql_global_status_wsrep_flow_control_paused > 0.2 and mysql_global_status_wsrep_flow_control_paused < 1)
-        for: 1m
+        for: 5m
         labels:
-          severity: warning
+          severity: page
         annotations:
           summary: "Galera Cluster node on `{{ $labels.instance }}` flow control pause too high"
           description: "A Galera Cluster node on `{{ $labels.instance }}` had a flow control pause too high ({{ $value }}) during the last 1m"
 
       - alert: MySQLGaleraSendQueueLengthTooHigh
         expr: (mysql_global_status_wsrep_local_send_queue_avg > 2)
-        for: 1m
+        for: 10m
         labels:
-          severity: warning
+          severity: page
         annotations:
           summary: "Galera Cluster on `{{ $labels.instance }}` send queue length too high"
           description: "Galera Cluster on `{{ $labels.instance }}` had a local send queue length too high ({{ $value }}) during the last 1m, It may indicate that replication throttling or network throughput issues"
 
       - alert: MySQLGaleraRecvQueueLengthTooHigh
         expr: (mysql_global_status_wsrep_local_recv_queue_avg > 2)
-        for: 1m
+        for: 10m
         labels:
-          service: mysql
-          severity: warning
+          severity: page
         annotations:
           summary: "Galera Cluster on `{{ $labels.instance }}` recv queue length too high"
           description: "Galera Cluster on `{{ $labels.instance }}` had a local received queue length too high ({{ $value }}) during the last 1m. It may indicate that the node cannot apply write-sets as fast as it receives them, which can lead to replication throttling"
