@@ -43,7 +43,7 @@ groups:
           description: "MySQL instance is down on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
       - alert: MysqlSlaveReplicationLag
         expr: mysql_slave_status_master_server_id > 0 and ON (instance) (mysql_slave_status_seconds_behind_master - mysql_slave_status_sql_delay) > 30
-        for: 1m
+        for: 10m
         labels:
           severity: page
         annotations:
