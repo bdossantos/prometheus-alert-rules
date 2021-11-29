@@ -68,7 +68,7 @@ groups:
           description: "The Number of JVM GC runs in second by nodes is > 1 GC/s for 5m\n  VALUE = {{ humanize $value }}\n  LABELS: {{ $labels }}"
       - alert: ElasticGcRuntimeTooHigh
         expr: (rate(elasticsearch_jvm_gc_collection_seconds_sum[5m]) * 1000) > 50
-        for: 10m
+        for: 30m
         labels:
           severity: page
         annotations:
