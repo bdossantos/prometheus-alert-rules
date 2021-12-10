@@ -19,10 +19,10 @@ groups:
           summary: "Unusual disk write rate (instance {{ $labels.instance }})"
           description: "Disk is probably writing too much data (> 50 MB/s)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
       - alert: HostOutOfDiskSpace
-        expr: (node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10 and ON (instance, device, mountpoint) node_filesystem_readonly == 0
-        for: 5m
+        expr: (node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 5 and ON (instance, device, mountpoint) node_filesystem_readonly == 0
+        for: 10m
         labels:
-          severity: warning
+          severity: page
         annotations:
           summary: "Out of disk space (instance {{ $labels.instance }})"
           description: "Disk is almost full (< 10% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
