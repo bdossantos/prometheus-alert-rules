@@ -12,13 +12,13 @@ groups:
           description: "Too many HTTP requests with status 4xx (> 100) on server {{ $labels.proxy }}\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
       - alert: HaproxyHighHttp5xxErrorRateServer
-        expr: (sum by (proxy) (rate(haproxy_backend_http_responses_total{code=~"5xx"}[1m]))) > 100
+        expr: (sum by (proxy) (rate(haproxy_backend_http_responses_total{code=~"5xx",proxy!="maintenancez"}[1m])) / sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[1m]))) * 100 > 1
         for: 1m
         labels:
           severity: page
         annotations:
           summary: HAProxy high HTTP 5xx error rate server (instance {{ $labels.instance }})
-          description: "Too many HTTP requests with status 5xx (> 100) on server {{ $labels.proxy }}\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Too many HTTP requests with status 5xx (> 1%) on server {{ $labels.proxy }}\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
       - alert: HaproxyServerResponseErrors
         expr: (sum by (proxy) (rate(haproxy_server_response_errors_total[1m]))) > 100
@@ -42,7 +42,7 @@ groups:
         expr: (sum by (proxy) (rate(haproxy_server_limit_sessions[1m]))) > 0
         for: 5m
         labels:
-          severity: warning
+          severity: page
         annotations:
           summary: HAProxy backend max active session (instance {{ $labels.instance }})
           description: "HAproxy backend {{ $labels.proxy }}/{{ $labels.proxy }} is reaching session limit (> 80%).\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
@@ -51,7 +51,7 @@ groups:
         expr: (sum by (proxy) (rate(haproxy_backend_current_queue[2m]))) > 0
         for: 5m
         labels:
-          severity: warning
+          severity: page
         annotations:
           summary: HAProxy pending requests (instance {{ $labels.instance }})
           description: "Some HAProxy requests are pending on {{ $labels.proxy }}/{{ $labels.proxy }} backend\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
