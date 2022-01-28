@@ -13,7 +13,7 @@ groups:
 
       - alert: HaproxyHighHttp5xxErrorRateServer
         expr: (sum by (proxy) (rate(haproxy_backend_http_responses_total{code=~"5xx",proxy!="maintenancez"}[1m])) / sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[1m]))) * 100 > 1
-        for: 1m
+        for: 5m
         labels:
           severity: page
         annotations:
