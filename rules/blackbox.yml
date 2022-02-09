@@ -42,7 +42,7 @@ groups:
         annotations:
           summary: Blackbox SSL certificate will expire soon (instance {{ $labels.instance }})
           description: "SSL certificate expires in 15 days\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
-      - alert: BlackboxSslCertificateWillExpireSoon
+      - alert: BlackboxSslCertificateWillExpireVerySoon
         expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 7
         for: 5m
         labels:
