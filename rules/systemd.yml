@@ -9,4 +9,4 @@ groups:
           severity: warning
         annotations:
           summary: "SystemD service crashed (instance {{ $labels.instance }})"
-          description: "SystemD service crashed\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "SystemD service crashed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

@@ -9,7 +9,7 @@ groups:
           severity: page
         annotations:
           summary: "Out of memory (instance {{ $labels.instance }})"
-          description: "Node memory is filling up (< 5% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Node memory is filling up (< 5% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: NodeHasConstantOOMKills
         # Alert if node has more than 3 OOM kills for last hour (1 every 5 minutes).
         # This is only way to detect OOM kills at the moment.
@@ -26,7 +26,7 @@ groups:
           severity: warning
         annotations:
           summary: "Host memory under memory pressure (instance {{ $labels.instance }})"
-          description: "The node is under heavy memory pressure. High rate of major page faults\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "The node is under heavy memory pressure. High rate of major page faults\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostEdacCorrectableErrorsDetected
         expr: increase(node_edac_correctable_errors_total[1m]) > 0
         for: 0m

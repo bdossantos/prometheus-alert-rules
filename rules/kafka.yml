@@ -8,7 +8,7 @@ groups:
           severity: page
         annotations:
           summary: "Kafka topics replicas (instance {{ $labels.instance }})"
-          description: "Kafka topic in-sync partition\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Kafka topic in-sync partition\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: KafkaConsumersGroup
         expr: sum(kafka_consumergroup_lag) by (consumergroup) > 500000
@@ -17,7 +17,7 @@ groups:
           severity: page
         annotations:
           summary: "Kafka consumers group (instance {{ $labels.instance }})"
-          description: "Kafka consumers group\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Kafka consumers group\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: KafkaTopicOffsetDecreased
         expr: delta(kafka_burrow_partition_current_offset[1m]) < 0
@@ -26,7 +26,7 @@ groups:
           severity: warning
         annotations:
           summary: "Kafka topic offset decreased (instance {{ $labels.instance }})"
-          description: "Kafka topic offset has decreased\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Kafka topic offset has decreased\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: KafkaConsumerGroupLag
         expr: kafka_consumergroup_lag > 0
@@ -35,4 +35,4 @@ groups:
           severity: warning
         annotations:
           summary: "Kafka consumer group lag (instance {{ $labels.instance }})"
-          description: "Kafka consumer group has a 60 minutes and increasing lag\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Kafka consumer group has a 60 minutes and increasing lag\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

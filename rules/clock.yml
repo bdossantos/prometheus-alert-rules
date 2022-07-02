@@ -9,7 +9,7 @@ groups:
           severity: page
         annotations:
           summary: Host clock skew (instance {{ $labels.instance }})
-          description: "Clock skew detected. Clock is out of sync.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Clock skew detected. Clock is out of sync.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostClockNotSynchronising
         expr: min_over_time(node_timex_sync_status[1m]) == 0 and node_timex_maxerror_seconds >= 16
         for: 2m
@@ -17,4 +17,4 @@ groups:
           severity: page
         annotations:
           summary: Host clock not synchronising (instance {{ $labels.instance }})
-          description: "Clock not synchronising.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Clock not synchronising.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

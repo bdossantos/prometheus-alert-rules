@@ -9,7 +9,7 @@ groups:
           severity: warning
         annotations:
           summary: Host high CPU load (instance {{ $labels.instance }})
-          description: "CPU load is > 80%\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "CPU load is > 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostCpuStealNoisyNeighbor
         expr: avg by(instance) (rate(node_cpu_seconds_total{mode="steal"}[5m])) * 100 > 10
         for: 5m
@@ -17,7 +17,7 @@ groups:
           severity: warning
         annotations:
           summary: Host CPU steal noisy neighbor (instance {{ $labels.instance }})
-          description: "CPU steal is > 10%. A noisy neighbor is killing VM performances or a spot instance may be out of credit.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "CPU steal is > 10%. A noisy neighbor is killing VM performances or a spot instance may be out of credit.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostCpuIoWait
         expr: (avg by(instance) (rate(node_cpu_seconds_total{mode="iowait"}[2m])) * 100) > 40
         for: 30m
@@ -25,4 +25,4 @@ groups:
           severity: page
         annotations:
           summary: Host CPU IO wait (instance {{ $labels.instance }})
-          description: "CPU IO wait is > 40% for 30m.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "CPU IO wait is > 40% for 30m.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

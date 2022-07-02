@@ -9,7 +9,7 @@ groups:
           severity: page
         annotations:
           summary: Host CPU pressure (instance {{ $labels.instance }})
-          description: "CPU pressure is > 90% for 30m.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "CPU pressure is > 90% for 30m.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: MemoryPressure
         expr: (avg by (instance) (rate(node_pressure_memory_waiting_seconds_total[1m])) * 100) > 90
         for: 30m
@@ -17,7 +17,7 @@ groups:
           severity: page
         annotations:
           summary: Host memory pressure (instance {{ $labels.instance }})
-          description: "Memory pressure is > 90% for 30m.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "Memory pressure is > 90% for 30m.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: IOPressure
         expr: (avg by (instance) (rate(node_pressure_io_waiting_seconds_total[1m])) * 100) > 90
         for: 30m
@@ -25,4 +25,4 @@ groups:
           severity: page
         annotations:
           summary: Host IO pressure (instance {{ $labels.instance }})
-          description: "IO pressure is > 90% for 30m.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "IO pressure is > 90% for 30m.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
