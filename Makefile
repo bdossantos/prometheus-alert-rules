@@ -12,7 +12,7 @@ help:
 		| awk 'BEGIN { FS = ":.*?## " }; { printf "\033[36m%-30s\033[0m %s\n", $$1, $$2 }'
 
 test: ## Run tests suite
-	@docker run --entrypoint /bin/sh -v $(CWD)/rules:/rules:ro prom/prometheus:v2.33.5 -c '/bin/find /rules -type f -name *.yml | xargs -n 1 -P 1 promtool check rules'
+	@docker run --entrypoint /bin/sh -v $(CWD)/rules:/rules:ro prom/prometheus:v2.36.2 -c '/bin/find /rules -type f -name *.yml | xargs -n 1 -P 1 promtool check rules'
 
 shellcheck: ## Run shellcheck on textfile-collector directory
 	$(info --> Run shellsheck)
