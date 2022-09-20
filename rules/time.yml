@@ -1,0 +1,37 @@
+---
+- record: is_european_summer_time
+  expr: |
+    (vector(1) and (month() > 3 and month() < 10))
+    or
+    (vector(1) and (month() == 3 and (day_of_month() - day_of_week()) >= 25) and absent((day_of_month() >= 25) and (day_of_week() == 0)))
+    or
+    (vector(1) and (month() == 10 and (day_of_month() - day_of_week()) < 25) and absent((day_of_month() >= 25) and (day_of_week() == 0)))
+    or
+    (vector(1) and ((month() == 10 and hour() < 1) or (month() == 3 and hour() > 0)) and ((day_of_month() >= 25) and (day_of_week() == 0)))
+    or
+    vector(0)
+
+- record: europe_paris_time
+  expr: time() + 3600 * (1 + is_european_summer_time)
+
+- record: europe_paris_hour
+  expr: hour(europe_paris_time)
+
+- record: europe_paris_weekday
+  expr: 0 < day_of_week(europe_paris_time) < 6
+
+- record: europe_paris_daytime
+  expr: 8 < europe_paris_hour < 18
+
+# new year's day / xmas / labor day / all saints' day / ...
+- record: europe_french_public_holidays
+  expr: |
+    (vector(1) and month(europe_paris_time) == 1 and day_of_month(europe_paris_time) == 1)
+    or
+    (vector(1) and month(europe_paris_time) == 12 and day_of_month(europe_paris_time) == 25)
+    or
+    (vector(1) and month(europe_paris_time) == 5 and day_of_month(europe_paris_time) == 1)
+    or
+    (vector(1) and month(europe_paris_time) == 11 and day_of_month(europe_paris_time) == 1)
+    or
+    vector(0)
