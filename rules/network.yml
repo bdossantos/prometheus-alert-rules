@@ -19,7 +19,7 @@ groups:
           summary: "Unusual network throughput out (instance {{ $labels.instance }})"
           description: "Host network interfaces are probably sending too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostNetworkInterfaceSaturated
-        expr: (rate(node_network_receive_bytes_total{device!~"^tap.*"}[1m]) + rate(node_network_transmit_bytes_total{device!~"^tap.*"}[1m])) / node_network_speed_bytes{device!~"^tap.*"} > 0.9
+        expr: (rate(node_network_receive_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m]) + rate(node_network_transmit_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m])) / node_network_speed_bytes{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"} > 0.9 < 10000
         for: 15m
         labels:
           severity: page
@@ -34,3 +34,19 @@ groups:
         annotations:
           summary: Host conntrack limit (instance {{ $labels.instance }})
           description: "The number of conntrack is approching limit\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: HostNetworkBondDegraded
+        expr: (node_bonding_active - node_bonding_slaves) != 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Host Network Bond Degraded (instance {{ $labels.instance }})
+          description: "Bond \"{{ $labels.device }}\" degraded on \"{{ $labels.instance }}\".\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: HostNetworkTransmitErrors
+        expr: rate(node_network_transmit_errs_total[2m]) / rate(node_network_transmit_packets_total[2m]) > 0.01
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Host Network Transmit Errors (instance {{ $labels.instance }})
+          description: "Host {{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf \"%.0f\" $value }} transmit errors in the last two minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
