@@ -10,6 +10,9 @@ set -o nounset
 DEBUG=${DEBUG:=0}
 [[ $DEBUG -eq 1 ]] && set -o xtrace
 
+# Ensure predictable numeric / date formats, etc.
+export LC_ALL=C
+
 if [[ $(id -u) -ne 0 ]]; then
   echo "${0##*/}: Please run as root!" >&2
   exit 1
