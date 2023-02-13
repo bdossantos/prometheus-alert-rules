@@ -1,0 +1,39 @@
+---
+groups:
+  - name: php-fpm
+    rules:
+      - alert: PhpFpmMaxChildrenReached
+        expr: (sum by (job) (rate(phpfpm_max_children_reached[5m]))) > 1
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: Number of childs process have been exceeded (instance {{ $labels.instance }})
+          description: "php-fpm process limit has been reached \n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PhpFpmListenQueue>80%
+        expr: (sum by (job) (phpfpm_listen_queue / phpfpm_listen_queue_length)) > 0.8
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: php-fpm listen queue > 80% (instance {{ $labels.instance }})
+          description: "Listen queue reached 80% of limit - {{ $value | printf \"%.2f\"}}%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PhpFpmBusyProcess>80%
+        expr: (max by (job) ((phpfpm_total_processes / 100) * phpfpm_active_processes)) > 80
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: php-fpm busy process > 80% (instance {{ $labels.instance }})
+          description: "80% of processes are busy - {{ $value | printf \"%.2f\"}}%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PhpFpmSlowRequests
+        expr: (rate(phpfpm_slow_requests[5m]) / rate(phpfpm_accepted_connections[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: php-fpm response time is increasing (instance {{ $labels.instance }})
+          description: "Average request time is increasing\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
