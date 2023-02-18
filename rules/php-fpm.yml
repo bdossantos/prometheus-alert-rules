@@ -21,7 +21,7 @@ groups:
           description: "Listen queue reached 80% of limit - {{ $value | printf \"%.2f\"}}%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PhpFpmBusyProcess>80%
-        expr: (max by (job) ((phpfpm_total_processes / 100) * phpfpm_active_processes)) > 80
+        expr: ((sum(phpfpm_active_processes) by (job) * 100) / sum(phpfpm_total_processes) by (job)) > 80
         for: 5m
         labels:
           severity: page
