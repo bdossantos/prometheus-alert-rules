@@ -1,0 +1,18 @@
+---
+version: prometheus/v1
+service: unsubscribe
+labels:
+  repo: https://github.com/bdossantos/prometheus-alert-rules
+slos:
+  - name: requests-availability
+    objective: 99.9
+    description: Common SLO based on availability for HTTP request responses.
+    sli:
+      events:
+        error_query: sum(rate(haproxy_backend_http_responses_total{proxy="unsubscribe",code=~"[5].*"}[{{.window}}]))
+        total_query: sum(rate(haproxy_backend_http_responses_total{proxy="unsubscribe"}[{{.window}}]))
+    alerting:
+      name: UnsubscribeHighErrorRate
+      page_alert:
+        labels:
+          severity: page

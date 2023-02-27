@@ -4,6 +4,8 @@
 
 ## Usage
 
+### Prometheus configuration
+
 ```yaml
 # prometheus.yml
 
@@ -12,8 +14,17 @@ global:
   ...
 
 rule_files:
-  - 'alerts/*.yml'
+  - 'rules/*.yml'
+  # optional
+  - 'slo-rules/*.yml'
 
 scrape_configs:
   ...
+```
+
+### Generate SLO prometheus rules
+
+```
+sloth generate -i slo-specs/ -o slo-rules/
+prettier -w slo-rules/*
 ```
