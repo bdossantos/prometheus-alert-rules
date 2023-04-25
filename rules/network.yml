@@ -2,8 +2,16 @@
 groups:
   - name: network
     rules:
+      - alert: HostMemoryIsUnderUtilized
+        expr: '(100 - (rate(node_memory_MemAvailable_bytes[30m]) / node_memory_MemTotal_bytes * 100) < 20) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
+        for: 1w
+        labels:
+          severity: info
+        annotations:
+          summary: Host Memory is under utilized (instance {{ $labels.instance }})
+          description: "Node memory is < 20% for 1 week. Consider reducing memory space.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostUnusualNetworkThroughputIn
-        expr: sum by (instance) (rate(node_network_receive_bytes_total[2m])) / 1024 / 1024 > 100
+        expr: '(sum by (instance) (rate(node_network_receive_bytes_total[2m])) / 1024 / 1024 > 100) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 5m
         labels:
           severity: warning
@@ -11,7 +19,7 @@ groups:
           summary: "Unusual network throughput in (instance {{ $labels.instance }})"
           description: "Host network interfaces are probably receiving too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostUnusualNetworkThroughputOut
-        expr: sum by (instance) (rate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 100
+        expr: '(sum by (instance) (rate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 100) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 5m
         labels:
           severity: warning
@@ -19,7 +27,7 @@ groups:
           summary: "Unusual network throughput out (instance {{ $labels.instance }})"
           description: "Host network interfaces are probably sending too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostNetworkInterfaceSaturated
-        expr: (rate(node_network_receive_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m]) + rate(node_network_transmit_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m])) / node_network_speed_bytes{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"} > 0.9 < 10000
+        expr: '((rate(node_network_receive_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m]) + rate(node_network_transmit_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m])) / node_network_speed_bytes{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"} > 0.8 < 10000) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 15m
         labels:
           severity: page
@@ -27,7 +35,7 @@ groups:
           summary: "Host Network Interface Saturated (instance {{ $labels.instance }})"
           description: "The network interface \"{{ $labels.device }}\" on \"{{ $labels.instance }}\" is getting overloaded.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostConntrackLimit
-        expr: node_nf_conntrack_entries / node_nf_conntrack_entries_limit > 0.8
+        expr: '(node_nf_conntrack_entries / node_nf_conntrack_entries_limit > 0.8) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 5m
         labels:
           severity: page
@@ -35,7 +43,7 @@ groups:
           summary: Host conntrack limit (instance {{ $labels.instance }})
           description: "The number of conntrack is approching limit\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostNetworkBondDegraded
-        expr: (node_bonding_active - node_bonding_slaves) != 0
+        expr: '((node_bonding_active - node_bonding_slaves) != 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 5m
         labels:
           severity: warning
@@ -43,7 +51,7 @@ groups:
           summary: Host Network Bond Degraded (instance {{ $labels.instance }})
           description: "Bond \"{{ $labels.device }}\" degraded on \"{{ $labels.instance }}\".\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostNetworkTransmitErrors
-        expr: rate(node_network_transmit_errs_total[2m]) / rate(node_network_transmit_packets_total[2m]) > 0.01
+        expr: '(rate(node_network_transmit_errs_total[2m]) / rate(node_network_transmit_packets_total[2m]) > 0.01) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 2m
         labels:
           severity: warning

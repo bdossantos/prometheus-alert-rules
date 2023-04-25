@@ -3,26 +3,42 @@ groups:
   - name: CPU
     rules:
       - alert: HostHighCpuLoad
-        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+        expr: '(sum by (instance) (avg by (mode, instance) (rate(node_cpu_seconds_total{mode!="idle"}[2m]))) > 0.8) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 5m
         labels:
           severity: warning
         annotations:
           summary: Host high CPU load (instance {{ $labels.instance }})
           description: "CPU load is > 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: HostCpuIsUnderUtilized
+        expr: '(100 - (rate(node_cpu_seconds_total{mode="idle"}[30m]) * 100) < 20) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
+        for: 1w
+        labels:
+          severity: info
+        annotations:
+          summary: Host CPU is under utilized (instance {{ $labels.instance }})
+          description: "CPU load is < 20% for 1 week. Consider reducing the number of CPUs.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostCpuStealNoisyNeighbor
-        expr: avg by(instance) (rate(node_cpu_seconds_total{mode="steal"}[5m])) * 100 > 10
-        for: 5m
+        expr: '(avg by(instance) (rate(node_cpu_seconds_total{mode="steal"}[5m])) * 100 > 10) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
+        for: 0m
         labels:
           severity: warning
         annotations:
           summary: Host CPU steal noisy neighbor (instance {{ $labels.instance }})
           description: "CPU steal is > 10%. A noisy neighbor is killing VM performances or a spot instance may be out of credit.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-      - alert: HostCpuIoWait
-        expr: (avg by(instance) (rate(node_cpu_seconds_total{mode="iowait"}[2m])) * 100) > 40
+      - alert: HostCpuHighIowait
+        expr: '(avg by (instance) (rate(node_cpu_seconds_total{mode="iowait"}[5m])) * 100 > 40) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 30m
         labels:
           severity: page
         annotations:
-          summary: Host CPU IO wait (instance {{ $labels.instance }})
-          description: "CPU IO wait is > 40% for 30m.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: Host CPU high iowait (instance {{ $labels.instance }})
+          description: "CPU iowait > 40%. A high iowait means that you are disk or network bound.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: HostUnusualDiskIo
+        expr: '(rate(node_disk_io_time_seconds_total[1m]) > 0.5) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Host unusual disk IO (instance {{ $labels.instance }})
+          description: "Time spent in IO is too high on {{ $labels.instance }}. Check storage for issues.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
