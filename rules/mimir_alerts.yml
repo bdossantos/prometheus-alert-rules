@@ -151,19 +151,6 @@ groups:
         for: 5m
         labels:
           severity: critical
-      - alert: MimirDistributorForwardingErrorRate
-        annotations:
-          message: |
-            Mimir in {{ $labels.cluster }}/{{ $labels.namespace }} has a high failure rate when forwarding samples.
-          runbook_url: https://grafana.com/docs/mimir/latest/operators-guide/mimir-runbooks/#mimirdistributorforwardingerrorrate
-        expr: |
-          sum by (cluster, namespace) (rate(cortex_distributor_forward_errors_total{}[1m]))
-          /
-          sum by (cluster, namespace) (rate(cortex_distributor_forward_requests_total{}[1m]))
-          > 0.01
-        for: 5m
-        labels:
-          severity: critical
       - alert: MimirIngesterInstanceHasNoTenants
         annotations:
           message:
@@ -303,33 +290,6 @@ groups:
           severity: critical
   - name: mimir-rollout-alerts
     rules:
-      - alert: MimirRolloutStuck
-        annotations:
-          message: |
-            The {{ $labels.rollout_group }} rollout is stuck in {{ $labels.cluster }}/{{ $labels.namespace }}.
-          runbook_url: https://grafana.com/docs/mimir/latest/operators-guide/mimir-runbooks/#mimirrolloutstuck
-        expr: |
-          (
-            max without (revision) (
-              sum without(statefulset) (label_replace(kube_statefulset_status_current_revision, "rollout_group", "$1", "statefulset", "(.*?)(?:-zone-[a-z])?"))
-                unless
-              sum without(statefulset) (label_replace(kube_statefulset_status_update_revision, "rollout_group", "$1", "statefulset", "(.*?)(?:-zone-[a-z])?"))
-            )
-              *
-            (
-              sum without(statefulset) (label_replace(kube_statefulset_replicas, "rollout_group", "$1", "statefulset", "(.*?)(?:-zone-[a-z])?"))
-                !=
-              sum without(statefulset) (label_replace(kube_statefulset_status_replicas_updated, "rollout_group", "$1", "statefulset", "(.*?)(?:-zone-[a-z])?"))
-            )
-          ) and (
-            changes(sum without(statefulset) (label_replace(kube_statefulset_status_replicas_updated, "rollout_group", "$1", "statefulset", "(.*?)(?:-zone-[a-z])?"))[15m:1m])
-              ==
-            0
-          )
-          * on(cluster, namespace) group_left max by(cluster, namespace) (cortex_build_info)
-        for: 30m
-        labels:
-          severity: warning
       - alert: MimirRolloutStuck
         annotations:
           message: |
@@ -726,8 +686,28 @@ groups:
             }} got a corrupted TSDB WAL.
           runbook_url: https://grafana.com/docs/mimir/latest/operators-guide/mimir-runbooks/#mimiringestertsdbwalcorrupted
         expr: |
-          rate(cortex_ingester_tsdb_wal_corruptions_total[5m]) > 0
+          # alert when there are more than one corruptions
+          count by (cluster, namespace) (rate(cortex_ingester_tsdb_wal_corruptions_total[5m]) > 0) > 1
+          and
+          # and there is only one zone
+          count by (cluster, namespace) (group by (cluster, namespace, job) (cortex_ingester_tsdb_wal_corruptions_total)) == 1
         labels:
+          deployment: single-zone
+          severity: critical
+      - alert: MimirIngesterTSDBWALCorrupted
+        annotations:
+          message:
+            Mimir Ingester {{ $labels.instance }} in {{ $labels.cluster }}/{{ $labels.namespace
+            }} got a corrupted TSDB WAL.
+          runbook_url: https://grafana.com/docs/mimir/latest/operators-guide/mimir-runbooks/#mimiringestertsdbwalcorrupted
+        expr: |
+          # alert when there are more than one corruptions
+          count by (cluster, namespace) (sum by (cluster, namespace, job) (rate(cortex_ingester_tsdb_wal_corruptions_total[5m]) > 0)) > 1
+          and
+          # and there are multiple zones
+          count by (cluster, namespace) (group by (cluster, namespace, job) (cortex_ingester_tsdb_wal_corruptions_total)) > 1
+        labels:
+          deployment: multi-zone
           severity: critical
       - alert: MimirIngesterTSDBWALWritesFailed
         annotations:
@@ -896,7 +876,7 @@ groups:
         for: 15m
         labels:
           severity: critical
-      - alert: MimirCompactorHasNotUploadedBlocks
+      - alert: MimirCompactorHasNotUploadedBlocks24h
         annotations:
           message:
             Mimir Compactor {{ $labels.instance }} in {{ $labels.cluster }}/{{
