@@ -24,9 +24,6 @@ groups:
       - record: europe_paris_weekday
         expr: 0 < day_of_week(europe_paris_time) < 6
 
-      - record: europe_paris_daytime
-        expr: 8 < europe_paris_hour < 18
-
       - record: not_europe_paris_weekday
         expr: absent(europe_paris_weekday)
 
