@@ -16,35 +16,35 @@ groups:
           vector(0)
 
       - record: timezones:europe_paris_time
-        expr: time() + 3600 * (1 + european_summer_time_offset)
+        expr: time() + 3600 * (1 + timezones:european_summer_time_offset)
 
       - record: timezones:europe_paris_hour
-        expr: hour(europe_paris_time)
+        expr: hour(timezones:europe_paris_time)
 
       - record: timezones:europe_paris_weekday
-        expr: 0 < day_of_week(europe_paris_time) < 6
+        expr: 0 < day_of_week(timezones:europe_paris_time) < 6
 
       - record: timezones:not_europe_paris_weekday
-        expr: absent(europe_paris_weekday)
+        expr: absent(timezones:europe_paris_weekday)
 
       - record: timezones:europe_paris_business_hours
-        expr: 9 < europe_paris_hour < 18
+        expr: 9 < timezones:europe_paris_hour < 18
 
       - record: timezones:not_europe_paris_business_hours
-        expr: absent(europe_paris_business_hours)
+        expr: absent(timezones:europe_paris_business_hours)
 
       # new year's day / xmas / labor day / all saints' day / ...
       - record: timezones:europe_french_public_holidays
         expr: |
-          (vector(1) and month(europe_paris_time) == 1 and day_of_month(europe_paris_time) == 1)
+          (vector(1) and month(timezones:europe_paris_time) == 1 and day_of_month(timezones:europe_paris_time) == 1)
           or
-          (vector(1) and month(europe_paris_time) == 12 and day_of_month(europe_paris_time) == 25)
+          (vector(1) and month(timezones:europe_paris_time) == 12 and day_of_month(timezones:europe_paris_time) == 25)
           or
-          (vector(1) and month(europe_paris_time) == 5 and day_of_month(europe_paris_time) == 1)
+          (vector(1) and month(timezones:europe_paris_time) == 5 and day_of_month(timezones:europe_paris_time) == 1)
           or
-          (vector(1) and month(europe_paris_time) == 11 and day_of_month(europe_paris_time) == 1)
+          (vector(1) and month(timezones:europe_paris_time) == 11 and day_of_month(timezones:europe_paris_time) == 1)
           or
           vector(0)
 
       - record: timezones:not_europe_french_public_holidays
-        expr: absent(europe_french_public_holidays)
+        expr: absent(timezones:europe_french_public_holidays)
