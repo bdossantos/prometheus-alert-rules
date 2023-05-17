@@ -1,9 +1,9 @@
 ---
 groups:
   # https://samber.github.io/awesome-prometheus-alerts/sleep-peacefully
-  - name: time
+  - name: timezones
     rules:
-      - record: european_summer_time_offset
+      - record: timezones:european_summer_time_offset
         expr: |
           (vector(1) and (month() > 3 and month() < 10))
           or
@@ -15,26 +15,26 @@ groups:
           or
           vector(0)
 
-      - record: europe_paris_time
+      - record: timezones:europe_paris_time
         expr: time() + 3600 * (1 + european_summer_time_offset)
 
-      - record: europe_paris_hour
+      - record: timezones:europe_paris_hour
         expr: hour(europe_paris_time)
 
-      - record: europe_paris_weekday
+      - record: timezones:europe_paris_weekday
         expr: 0 < day_of_week(europe_paris_time) < 6
 
-      - record: not_europe_paris_weekday
+      - record: timezones:not_europe_paris_weekday
         expr: absent(europe_paris_weekday)
 
-      - record: europe_paris_business_hours
+      - record: timezones:europe_paris_business_hours
         expr: 9 < europe_paris_hour < 18
 
-      - record: not_europe_paris_business_hours
+      - record: timezones:not_europe_paris_business_hours
         expr: absent(europe_paris_business_hours)
 
       # new year's day / xmas / labor day / all saints' day / ...
-      - record: europe_french_public_holidays
+      - record: timezones:europe_french_public_holidays
         expr: |
           (vector(1) and month(europe_paris_time) == 1 and day_of_month(europe_paris_time) == 1)
           or
@@ -46,5 +46,5 @@ groups:
           or
           vector(0)
 
-      - record: not_europe_french_public_holidays
+      - record: timezones:not_europe_french_public_holidays
         expr: absent(europe_french_public_holidays)
