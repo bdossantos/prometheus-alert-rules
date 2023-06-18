@@ -12,7 +12,7 @@ groups:
           description: "Too many HTTP requests with status 4xx (> 5%) on server {{ $labels.server }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: HaproxyHighHttp5xxErrorRateServer
-        expr: (sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!="maintenancez"}[1m])) / sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!="maintenancez"}[1m]))) * 100 > 1
+        expr: (sum by (proxy) (rate(haproxy_backend_http_responses_total{code="5xx",proxy!~"maintenancez|stats"}[1m])) / sum by (proxy) (rate(haproxy_backend_http_responses_total{proxy!~"maintenancez|stats"}[1m]))) * 100 > 1
         for: 5m
         labels:
           severity: page
