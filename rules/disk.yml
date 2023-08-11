@@ -66,3 +66,11 @@ groups:
         annotations:
           summary: "Unusual disk write latency (instance {{ $labels.instance }})"
           description: "Disk latency is growing (write operations > 100ms)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: FilesystemDeviceError
+        expr: node_filesystem_device_error != 0
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          description: "{{ $labels.instance }}: Device error with the {{ $labels.mountpoint }} filesystem"
+          summary: "Device error with the {{ $labels.mountpoint }} filesystem"
