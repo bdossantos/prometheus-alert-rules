@@ -69,7 +69,7 @@ groups:
         expr: avg by (instance, proxy) (haproxy_backend_max_total_time_seconds) > 1
         for: 5m
         labels:
-          severity: page
+          severity: warning
         annotations:
           summary: HAProxy HTTP slowing down (instance {{ $labels.instance }})
           description: "Average request time is increasing\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
