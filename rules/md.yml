@@ -2,15 +2,6 @@
 groups:
   - name: md
     rules:
-      - alert: MdMismatchCntUnsynchronizedBlocksAverage
-        expr: netdata_md_mismatch_cnt_unsynchronized_blocks_average > 1024
-        for: 60m
-        labels:
-          severity: warning
-        annotations:
-          summary: "RAID Array have unsynchronized blocks! (instance {{ $labels.instance }})"
-          description: "Detected unsynchronized blocks\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-
       - alert: HostRaidArrayGotInactive
         expr: (node_md_state{state="inactive"} > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 5m
