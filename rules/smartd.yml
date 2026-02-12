@@ -15,6 +15,14 @@ groups:
         annotations:
           summary: "SMART health check failed (instance {{ $labels.instance }})"
           description: "Device {{ $labels.disk }} ({{ $labels.device_model }}) reports SMART health check failure\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: SmartKeyMetricsUnhealthy
+        expr: smartmon_attr_raw_value{name=~"reported_uncorrect|reallocated_sector_ct|command_timeout|current_pending_sector|offline_uncorrectable"} > 0
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "SMART device has critical metric failures (instance {{ $labels.instance }})"
+          description: "Device {{ $labels.disk }} has critical SMART metric {{ $labels.name }} with value {{ $value }}. See https://www.backblaze.com/blog/what-smart-stats-indicate-hard-drive-failures/\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: SmartDeviceNotAvailable
         expr: smartmon_device_smart_available == 0
         for: 5m
