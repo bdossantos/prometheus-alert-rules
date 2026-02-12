@@ -35,7 +35,7 @@ groups:
           summary: "The percentage of NVM subsystem life used is > 90% (instance {{ $labels.instance }})"
           description: "Contains a vendor specific estimate of the percentage of NVM subsystem life used based on the actual usage and the manufacturer’s prediction of NVM life. A value of 100 indicates that the estimated endurance of the NVM in the NVM subsystem has been consumed, but may not indicate an NVM subsystem failure. The value is allowed to exceed 100.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: NvmeMediaWearoutIndicator
-        expr: nvme_available_spare_ratio < nvme_available_spare_threshold_ratio
+        expr: nvme_available_spare_ratio < on (instance, device) nvme_available_spare_threshold_ratio
         for: 5m
         labels:
           severity: page
@@ -43,10 +43,10 @@ groups:
           summary: "NVMe device is wearing out (instance {{ $labels.instance }})"
           description: "NVMe available spare capacity has fallen below the threshold. Device {{ $labels.device }} may be nearing end of life.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: NvmeMediaErrors
-        expr: nvme_media_errors_total != 0
+        expr: increase(nvme_media_errors_total[5m]) > 0
         for: 5m
         labels:
           severity: page
         annotations:
-          summary: "NVMe has media errors (instance {{ $labels.instance }})"
-          description: "NVMe device {{ $labels.device }} has reported {{ $value }} media errors.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: "NVMe has new media errors (instance {{ $labels.instance }})"
+          description: "NVMe device {{ $labels.device }} has reported new media errors in the last 5 minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
