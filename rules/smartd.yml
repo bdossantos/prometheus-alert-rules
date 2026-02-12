@@ -86,7 +86,7 @@ groups:
           severity: warning
         annotations:
           summary: "SSD media wearout indicator low (instance {{ $labels.instance }})"
-          description: "Device {{ $labels.disk }} media wearout indicator is at or below 10%. SSD may be nearing end of life.\n  VALUE = {{ $value }}%\n  LABELS = {{ $labels }}"
+          description: "Device {{ $labels.disk }} media wearout indicator is at or below 10%. SSD may be nearing end of life.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: SmartDeviceWearLevelingCount
         expr: smartmon_wear_leveling_count_raw_value <= 10
         for: 5m
@@ -94,12 +94,13 @@ groups:
           severity: warning
         annotations:
           summary: "SSD wear leveling count low (instance {{ $labels.instance }})"
-          description: "Device {{ $labels.disk }} wear leveling count is at or below 10%. SSD may be nearing end of life.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Device {{ $labels.disk }} wear leveling count is at or below 10. SSD may be nearing end of life.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: SmartDeviceHighPowerOnHours
+        # 43800 hours = 5 years (5 * 365 * 24)
         expr: smartmon_power_on_hours_raw_value > 43800
         for: 1h
         labels:
           severity: warning
         annotations:
           summary: "Disk has exceeded 5 years of power-on time (instance {{ $labels.instance }})"
-          description: "Device {{ $labels.disk }} has been powered on for {{ $value }} hours (> 5 years). Consider replacement.\n  VALUE = {{ $value }} hours\n  LABELS = {{ $labels }}"
+          description: "Device {{ $labels.disk }} has been powered on for {{ $value }} hours (> 5 years / 43800 hours). Consider replacement.\n  VALUE = {{ $value }} hours\n  LABELS = {{ $labels }}"
