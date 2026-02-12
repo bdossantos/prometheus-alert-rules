@@ -1,30 +1,105 @@
 ---
-# https://www.backblaze.com/blog/what-smart-stats-indicate-hard-drive-failures/
-# https://www.backblaze.com/blog/hard-drive-smart-stats/
+# SMART monitoring for HDD/SSD using smartmon.sh textfile collector
+# See: https://github.com/prometheus-community/node-exporter-textfile-collector-scripts/blob/master/smartmon.sh
+# See: https://www.wirewd.com/hacks/blog/monitoring_a_mixed_fleet_of_flash_hdd_and_nvme_devices_with_node_exporter_and_prometheus
+# See: https://www.backblaze.com/blog/what-smart-stats-indicate-hard-drive-failures/
+# See: https://www.backblaze.com/blog/hard-drive-smart-stats/
 groups:
   - name: smartd
     rules:
-      - alert: smartd_log_reallocated_sectors_count_sectors_average
-        expr: netdata_smartd_log_reallocated_sectors_count_sectors_average > 0
+      - alert: SmartDeviceHealthStatus
+        expr: smartmon_device_smart_healthy == 0
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          summary: "SMART health check failed (instance {{ $labels.instance }})"
+          description: "Device {{ $labels.disk }} ({{ $labels.device_model }}) reports SMART health check failure\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: SmartDeviceNotAvailable
+        expr: smartmon_device_smart_available == 0
         for: 5m
         labels:
           severity: warning
         annotations:
-          description: "Reallocated sectors count is at {{ humanize $value }}%."
-          summary: "There is reallocated sectors (instance {{ $labels.instance }})"
-      - alert: smartd_log_current_pending_sector_count_sectors_average
-        expr: netdata_smartd_log_current_pending_sector_count_sectors_average > 0
+          summary: "SMART monitoring not available (instance {{ $labels.instance }})"
+          description: "Device {{ $labels.disk }} does not have SMART support available\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: SmartDeviceHighTemperature
+        expr: smartmon_temperature_celsius_raw_value > 60
         for: 5m
         labels:
           severity: warning
         annotations:
-          description: "Disk current Pending Sector Count is at {{ humanize $value }}%."
-          summary: "Reported pending sectors (instance {{ $labels.instance }})"
-      - alert: smartd_log_offline_uncorrectable_sector_count_sectors_average
-        expr: netdata_smartd_log_offline_uncorrectable_sector_count_sectors_average > 0
+          summary: "Disk temperature high (instance {{ $labels.instance }})"
+          description: "Device {{ $labels.disk }} temperature is above 60°C\n  VALUE = {{ $value }}°C\n  LABELS = {{ $labels }}"
+      - alert: SmartDeviceCriticalTemperature
+        expr: smartmon_temperature_celsius_raw_value > 70
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          summary: "Disk temperature critical (instance {{ $labels.instance }})"
+          description: "Device {{ $labels.disk }} temperature is critically high (> 70°C)\n  VALUE = {{ $value }}°C\n  LABELS = {{ $labels }}"
+      - alert: SmartDeviceReallocatedSectors
+        expr: smartmon_reallocated_sector_ct_raw_value > 0
         for: 5m
         labels:
           severity: warning
         annotations:
-          description: "Disk uncorrectable sector count is at {{ humanize $value }}%."
-          summary: "Reported uncorrectable sectors (instance {{ $labels.instance }})"
+          summary: "Disk has reallocated sectors (instance {{ $labels.instance }})"
+          description: "Device {{ $labels.disk }} has {{ $value }} reallocated sectors. This may indicate disk degradation.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: SmartDeviceReallocatedSectorsIncreasing
+        expr: delta(smartmon_reallocated_sector_ct_raw_value[1h]) > 0
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Disk reallocated sectors increasing (instance {{ $labels.instance }})"
+          description: "Device {{ $labels.disk }} reallocated sectors count is increasing. Disk may be failing.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: SmartDevicePendingSectors
+        expr: smartmon_current_pending_sector_raw_value > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk has pending sectors (instance {{ $labels.instance }})"
+          description: "Device {{ $labels.disk }} has {{ $value }} sectors pending reallocation\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: SmartDeviceUncorrectableSectors
+        expr: smartmon_offline_uncorrectable_raw_value > 0
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Disk has uncorrectable sectors (instance {{ $labels.instance }})"
+          description: "Device {{ $labels.disk }} has {{ $value }} uncorrectable sectors. Data loss may occur.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: SmartDeviceReportedUncorrectableErrors
+        expr: smartmon_reported_uncorrect_raw_value > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk reported uncorrectable errors (instance {{ $labels.instance }})"
+          description: "Device {{ $labels.disk }} has reported {{ $value }} uncorrectable errors\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: SmartDeviceMediaWearoutIndicator
+        expr: smartmon_media_wearout_indicator_raw_value < 10 and smartmon_media_wearout_indicator_raw_value > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSD media wearout indicator low (instance {{ $labels.instance }})"
+          description: "Device {{ $labels.disk }} media wearout indicator is below 10%. SSD may be nearing end of life.\n  VALUE = {{ $value }}%\n  LABELS = {{ $labels }}"
+      - alert: SmartDeviceWearLevelingCount
+        expr: smartmon_wear_leveling_count_raw_value < 10 and smartmon_wear_leveling_count_raw_value > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSD wear leveling count low (instance {{ $labels.instance }})"
+          description: "Device {{ $labels.disk }} wear leveling count is below 10%. SSD may be nearing end of life.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: SmartDeviceHighPowerOnHours
+        expr: smartmon_power_on_hours_raw_value > 43800
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk has exceeded 5 years of power-on time (instance {{ $labels.instance }})"
+          description: "Device {{ $labels.disk }} has been powered on for {{ $value }} hours (> 5 years). Consider replacement.\n  VALUE = {{ $value }} hours\n  LABELS = {{ $labels }}"
