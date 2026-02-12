@@ -80,21 +80,21 @@ groups:
           summary: "Disk reported uncorrectable errors (instance {{ $labels.instance }})"
           description: "Device {{ $labels.disk }} has reported {{ $value }} uncorrectable errors\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: SmartDeviceMediaWearoutIndicator
-        expr: smartmon_media_wearout_indicator_raw_value < 10
+        expr: smartmon_media_wearout_indicator_raw_value <= 10
         for: 5m
         labels:
           severity: warning
         annotations:
           summary: "SSD media wearout indicator low (instance {{ $labels.instance }})"
-          description: "Device {{ $labels.disk }} media wearout indicator is below 10%. SSD may be nearing end of life.\n  VALUE = {{ $value }}%\n  LABELS = {{ $labels }}"
+          description: "Device {{ $labels.disk }} media wearout indicator is at or below 10%. SSD may be nearing end of life.\n  VALUE = {{ $value }}%\n  LABELS = {{ $labels }}"
       - alert: SmartDeviceWearLevelingCount
-        expr: smartmon_wear_leveling_count_raw_value < 10
+        expr: smartmon_wear_leveling_count_raw_value <= 10
         for: 5m
         labels:
           severity: warning
         annotations:
           summary: "SSD wear leveling count low (instance {{ $labels.instance }})"
-          description: "Device {{ $labels.disk }} wear leveling count is below 10%. SSD may be nearing end of life.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Device {{ $labels.disk }} wear leveling count is at or below 10%. SSD may be nearing end of life.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: SmartDeviceHighPowerOnHours
         expr: smartmon_power_on_hours_raw_value > 43800
         for: 1h
