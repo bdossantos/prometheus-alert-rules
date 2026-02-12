@@ -4,7 +4,7 @@ groups:
     rules:
       - alert: NvmeOvertemperatureAlarm
         expr: nvme_temperature_celsius > 60
-        for: 0m
+        for: 5m
         labels:
           severity: page
         annotations:
@@ -12,7 +12,7 @@ groups:
           description: "NVME SSD is running too hot (celcius temperature)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: NvmePowerOnHours
         expr: nvme_power_on_hours_total > 43800
-        for: 0m
+        for: 5m
         labels:
           severity: page
         annotations:
@@ -20,17 +20,33 @@ groups:
           description: "The total expected life-time of a hard disk is 5 years (43,800 hours)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: NvmeCriticalWarningTotal
         expr: nvme_critical_warning_total != 0
-        for: 0m
+        for: 5m
         labels:
           severity: page
         annotations:
           summary: "NVME indicate critical warnings for the state of the controller (instance {{ $labels.instance }})"
           description: "Critical warnings may result in an asynchronous event notification to the host. Bits in this field represent the current associated state and are not persistent.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: NvmePercentageUsedRatio
-        expr: nvme_percentage_used_ratio > 0.5
-        for: 0m
+        expr: nvme_percentage_used_ratio > 0.9
+        for: 5m
         labels:
           severity: page
         annotations:
-          summary: "The percentage of NVM subsystem life used is > 50% (instance {{ $labels.instance }})"
+          summary: "The percentage of NVM subsystem life used is > 90% (instance {{ $labels.instance }})"
           description: "Contains a vendor specific estimate of the percentage of NVM subsystem life used based on the actual usage and the manufacturer’s prediction of NVM life. A value of 100 indicates that the estimated endurance of the NVM in the NVM subsystem has been consumed, but may not indicate an NVM subsystem failure. The value is allowed to exceed 100.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: NvmeMediaWearoutIndicator
+        expr: nvme_available_spare_ratio < nvme_available_spare_threshold_ratio
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "NVMe device is wearing out (instance {{ $labels.instance }})"
+          description: "NVMe available spare capacity has fallen below the threshold. Device {{ $labels.device }} may be nearing end of life.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: NvmeMediaErrors
+        expr: nvme_media_errors_total != 0
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "NVMe has media errors (instance {{ $labels.instance }})"
+          description: "NVMe device {{ $labels.device }} has reported {{ $value }} media errors.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
