@@ -14,7 +14,7 @@ groups:
         expr: nvme_power_on_hours_total > 43800
         for: 5m
         labels:
-          severity: page
+          severity: warning
         annotations:
           summary: "Solid state drives Power-on hours has surpassed the 43,800 hour mark (instance {{ $labels.instance }})"
           description: "The total expected life-time of a hard disk is 5 years (43,800 hours)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
