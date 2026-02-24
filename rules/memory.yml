@@ -3,13 +3,13 @@ groups:
   - name: memory
     rules:
       - alert: HostOutOfMemory
-        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 5) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
-        for: 0m
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < .10) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 2m
         labels:
           severity: page
         annotations:
           summary: Host out of memory (instance {{ $labels.instance }})
-          description: "Node memory is filling up (< 5% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: NodeHasConstantOOMKills
         # Alert if node has more than 3 OOM kills for last hour (1 every 5 minutes).
         # This is only way to detect OOM kills at the moment.
@@ -20,7 +20,7 @@ groups:
         annotations:
           description: Node {{ $labels.ip }} has constant OOM kills.
       - alert: HostOomKillDetected
-        expr: (increase(node_vmstat_oom_kill[1m]) > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        expr: (increase(node_vmstat_oom_kill[30m]) > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m
         labels:
           severity: warning
@@ -28,21 +28,21 @@ groups:
           summary: Host OOM kill detected (instance {{ $labels.instance }})
           description: "OOM kill detected\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostMemoryUnderMemoryPressure
-        expr: (rate(node_vmstat_pgmajfault[1m]) > 1000) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        expr: (rate(node_vmstat_pgmajfault[5m]) > 1000) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
           severity: warning
         annotations:
           summary: Host memory under memory pressure (instance {{ $labels.instance }})
-          description: "The node is under heavy memory pressure. High rate of major page faults\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "The node is under heavy memory pressure. High rate of loading memory pages from disk.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostMemoryIsUnderUtilized
-        expr: (100 - (rate(node_memory_MemAvailable_bytes[30m]) / node_memory_MemTotal_bytes * 100) < 20) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        expr: (min_over_time(node_memory_MemFree_bytes[1w]) > node_memory_MemTotal_bytes * .8) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 1w
         labels:
           severity: info
         annotations:
           summary: Host Memory is under utilized (instance {{ $labels.instance }})
-          description: "Node memory is < 20% for 1 week. Consider reducing memory space.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Node memory usage is < 20% for 1 week. Consider reducing memory space.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostSwapIsFillingUp
         expr: ((1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) * 100 > 80) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m

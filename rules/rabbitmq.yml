@@ -4,7 +4,7 @@ groups:
     rules:
       - alert: RabbitmqNodeDown
         expr: sum(rabbitmq_build_info) < 3
-        for: 5m
+        for: 0m
         labels:
           severity: page
         annotations:
@@ -12,7 +12,7 @@ groups:
           description: "Less than 3 nodes running in RabbitMQ cluster\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: RabbitmqNodeNotDistributed
         expr: erlang_vm_dist_node_state < 3
-        for: 5m
+        for: 0m
         labels:
           severity: page
         annotations:
@@ -28,7 +28,7 @@ groups:
           description: "Running different version of Rabbitmq in the same cluster, can lead to failure.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: RabbitmqMemoryHigh
         expr: rabbitmq_process_resident_memory_bytes / rabbitmq_resident_memory_limit_bytes * 100 > 90
-        for: 10m
+        for: 2m
         labels:
           severity: warning
         annotations:
@@ -36,7 +36,7 @@ groups:
           description: "A node use more than 90% of allocated RAM\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: RabbitmqFileDescriptorsUsage
         expr: rabbitmq_process_open_fds / rabbitmq_process_max_fds * 100 > 90
-        for: 10m
+        for: 2m
         labels:
           severity: warning
         annotations:
@@ -44,7 +44,7 @@ groups:
           description: "A node use more than 90% of file descriptors\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: RabbitmqTooManyUnackMessages
         expr: sum(rabbitmq_queue_messages_unacked) BY (queue) > 1000
-        for: 1h
+        for: 1m
         labels:
           severity: page
         annotations:
@@ -52,7 +52,7 @@ groups:
           description: "Too many unacknowledged messages\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: RabbitmqTooManyConnections
         expr: rabbitmq_connections > 1000
-        for: 10m
+        for: 2m
         labels:
           severity: warning
         annotations:
@@ -60,7 +60,7 @@ groups:
           description: "The total connections of a node is too high\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: RabbitmqNoQueueConsumer
         expr: rabbitmq_queue_consumers < 1
-        for: 1h
+        for: 1m
         labels:
           severity: warning
         annotations:
@@ -68,7 +68,7 @@ groups:
           description: "A queue has less than 1 consumer\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: RabbitmqUnroutableMessages
         expr: increase(rabbitmq_channel_messages_unroutable_returned_total[1m]) > 0 or increase(rabbitmq_channel_messages_unroutable_dropped_total[1m]) > 0
-        for: 10m
+        for: 2m
         labels:
           severity: page
         annotations:

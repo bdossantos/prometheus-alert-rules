@@ -3,21 +3,21 @@ groups:
   - name: docker
     rules:
       - alert: ContainerCpuUsage
-        expr: (sum(rate(container_cpu_usage_seconds_total{name!=""}[3m])) BY (instance, name) * 100) > 90
+        expr: (sum(rate(container_cpu_usage_seconds_total{container!=""}[5m])) by (pod, container) / sum(container_spec_cpu_quota{container!=""}/container_spec_cpu_period{container!=""}) by (pod, container) * 100) > 80
         for: 5m
         labels:
           severity: warning
         annotations:
           summary: "Container CPU usage (instance {{ $labels.instance }})"
-          description: "Container CPU usage is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Container CPU utilization is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: ContainerMemoryUsage
-        expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name) * 100) > 90
+        expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name) * 100) > 80
         for: 5m
         labels:
           severity: warning
         annotations:
           summary: "Container Memory usage (instance {{ $labels.instance }})"
-          description: "Container Memory usage is above 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Container Memory usage is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: ContainerVolumeUsage
         expr: (1 - (sum(container_fs_inodes_free{name!=""}) BY (instance) / sum(container_fs_inodes_total) BY (instance))) * 100 > 80
         for: 2m
@@ -35,7 +35,7 @@ groups:
           summary: "Container Volume IO usage (instance {{ $labels.instance }})"
           description: "Container Volume IO usage is above 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: ContainerHighThrottleRate
-        expr: rate(container_cpu_cfs_throttled_seconds_total[3m]) > 1
+        expr: sum(increase(container_cpu_cfs_throttled_periods_total{container!=""}[5m])) by (container, pod, namespace) / sum(increase(container_cpu_cfs_periods_total[5m])) by (container, pod, namespace) > ( 25 / 100 )
         for: 5m
         labels:
           severity: warning

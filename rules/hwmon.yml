@@ -3,7 +3,7 @@ groups:
   - name: hardware
     rules:
       - alert: HostPhysicalComponentTooHot
-        expr: ((node_hwmon_temp_celsius * ignoring(label) group_left(instance, job, node, sensor) node_hwmon_sensor_label{label!="tctl"} > 75)) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        expr: (node_hwmon_temp_celsius > node_hwmon_temp_max_celsius) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 5m
         labels:
           severity: warning
@@ -11,7 +11,7 @@ groups:
           summary: "Host physical component too hot (instance {{ $labels.instance }})"
           description: "Physical hardware component too hot\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostNodeOvertemperatureAlarm
-        expr: '(node_hwmon_temp_crit_alarm_celsius == 1) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
+        expr: '((node_hwmon_temp_crit_alarm_celsius == 1) or (node_hwmon_temp_alarm == 1)) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 0m
         labels:
           severity: critical
