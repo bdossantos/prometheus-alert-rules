@@ -4,7 +4,7 @@ groups:
     rules:
       - alert: SystemdServiceCrashed
         expr: '(node_systemd_unit_state{state="failed"} == 1) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
-        for: 5m
+        for: 0m
         labels:
           severity: warning
         annotations:

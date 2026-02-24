@@ -3,29 +3,29 @@ groups:
   - name: network
     rules:
       - alert: HostMemoryIsUnderUtilized
-        expr: '(100 - (rate(node_memory_MemAvailable_bytes[30m]) / node_memory_MemTotal_bytes * 100) < 20) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
+        expr: '(min_over_time(node_memory_MemFree_bytes[1w]) > node_memory_MemTotal_bytes * .8) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 1w
         labels:
           severity: info
         annotations:
           summary: Host Memory is under utilized (instance {{ $labels.instance }})
-          description: "Node memory is < 20% for 1 week. Consider reducing memory space.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Node memory usage is < 20% for 1 week. Consider reducing memory space.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostUnusualNetworkThroughputIn
-        expr: '(sum by (instance) (rate(node_network_receive_bytes_total[2m])) / 1024 / 1024 > 100) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
+        expr: '((rate(node_network_receive_bytes_total[5m]) / node_network_speed_bytes) > .80) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 5m
         labels:
           severity: warning
         annotations:
           summary: "Unusual network throughput in (instance {{ $labels.instance }})"
-          description: "Host network interfaces are probably receiving too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Host receive bandwidth is high (>80%).\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostUnusualNetworkThroughputOut
-        expr: '(sum by (instance) (rate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 100) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
+        expr: '((rate(node_network_transmit_bytes_total[5m]) / node_network_speed_bytes) > .80) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 5m
         labels:
           severity: warning
         annotations:
           summary: "Unusual network throughput out (instance {{ $labels.instance }})"
-          description: "Host network interfaces are probably sending too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Host transmit bandwidth is high (>80%).\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostNetworkInterfaceSaturated
         expr: '((rate(node_network_receive_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m]) + rate(node_network_transmit_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m])) / node_network_speed_bytes{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"} > 0.8 < 10000) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 15m
@@ -41,10 +41,10 @@ groups:
           severity: page
         annotations:
           summary: Host conntrack limit (instance {{ $labels.instance }})
-          description: "The number of conntrack is approching limit\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "The number of conntrack is approaching limit\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostNetworkBondDegraded
         expr: '((node_bonding_active - node_bonding_slaves) != 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
-        for: 5m
+        for: 2m
         labels:
           severity: warning
         annotations:
