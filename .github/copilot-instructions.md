@@ -114,3 +114,38 @@ make shellcheck
 1. Create a new SLO spec file in `slo-specs/` following the Sloth format.
 2. Regenerate `slo-rules/` with `sloth generate -i slo-specs/ -o slo-rules/`.
 3. Format with `prettier -w slo-rules/*`.
+
+## Git Commit Messages
+
+All commits must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.
+
+### Format
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Types
+
+| Type       | When to use                                               |
+| ---------- | --------------------------------------------------------- |
+| `feat`     | A new alert rule, SLO, or textfile collector script       |
+| `fix`      | A bug fix in an existing rule, SLO, or script             |
+| `docs`     | Documentation changes only (README, comments, etc.)      |
+| `style`    | Formatting changes that do not affect meaning             |
+| `refactor` | Code change that neither fixes a bug nor adds a feature   |
+| `test`     | Adding or updating tests                                  |
+| `chore`    | Maintenance tasks (CI config, Makefile, dependencies)     |
+
+### Examples
+
+```
+feat(rules): add HostOomKillDetected alert
+fix(rules): correct threshold for HostHighCpuLoad
+docs: update README with new alert descriptions
+chore(ci): update promtool Docker image version
+```
