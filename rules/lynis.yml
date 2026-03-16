@@ -1,0 +1,44 @@
+---
+groups:
+  - name: lynis
+    rules:
+      - alert: LynisLowHardeningIndex
+        expr: (lynis_hardening_index < 60) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Lynis low hardening index (instance {{ $labels.instance }})
+          description: "Lynis hardening index is low (< 60/100). Review security recommendations.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: LynisVeryLowHardeningIndex
+        expr: (lynis_hardening_index < 40) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 0m
+        labels:
+          severity: page
+        annotations:
+          summary: Lynis very low hardening index (instance {{ $labels.instance }})
+          description: "Lynis hardening index is very low (< 40/100). Immediate security improvements are required.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: LynisHighWarningsCount
+        expr: (lynis_warnings > 3) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Lynis high warnings count (instance {{ $labels.instance }})
+          description: "Lynis has found more than 3 security warnings. Review and fix the warnings.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: LynisHighSuggestionsCount
+        expr: (lynis_suggestions > 50) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 0m
+        labels:
+          severity: info
+        annotations:
+          summary: Lynis high suggestions count (instance {{ $labels.instance }})
+          description: "Lynis has found more than 50 suggestions. Consider reviewing and implementing security improvements.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: LynisAuditNotRunRecently
+        expr: ((time() - lynis_last_run_timestamp) > 604800) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Lynis audit not run recently (instance {{ $labels.instance }})
+          description: "Lynis has not been run in more than 7 days. Schedule a security audit.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
