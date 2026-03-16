@@ -10,13 +10,13 @@ groups:
         annotations:
           summary: Host high CPU load (instance {{ $labels.instance }})
           description: "CPU load is > 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-      - alert: HostCpuIsUnderUtilized
-        expr: (min without (cpu) (rate(node_cpu_seconds_total{mode="idle"}[1h])) > 0.8) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+      - alert: HostCpuIsUnderutilized
+        expr: ((min without (cpu) (rate(node_cpu_seconds_total{mode="idle"}[1h]))) > 0.8) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 1w
         labels:
           severity: info
         annotations:
-          summary: Host CPU is under utilized (instance {{ $labels.instance }})
+          summary: Host CPU is underutilized (instance {{ $labels.instance }})
           description: "CPU load has been < 20% for 1 week. Consider reducing the number of CPUs.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostCpuStealNoisyNeighbor
         expr: (avg without (cpu) (rate(node_cpu_seconds_total{mode="steal"}[5m])) * 100 > 10) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
@@ -41,4 +41,12 @@ groups:
           severity: warning
         annotations:
           summary: Host unusual disk IO (instance {{ $labels.instance }})
-          description: "Disk usage >80%. Check storage for issues or increase IOPS capabilities.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Disk usage >80%. Check storage for issues or increase IOPS capabilities. Check storage for issues.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: HostContextSwitchingHigh
+        expr: ((rate(node_context_switches_total[15m])/count without(mode,cpu) (node_cpu_seconds_total{mode="idle"})) / (rate(node_context_switches_total[1d])/count without(mode,cpu) (node_cpu_seconds_total{mode="idle"})) > 2) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Host context switching high (instance {{ $labels.instance }})
+          description: "Context switching is growing on the node (twice the daily average during the last 15m)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

@@ -29,19 +29,19 @@ groups:
           description: "OOM kill detected\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostMemoryUnderMemoryPressure
         expr: (rate(node_vmstat_pgmajfault[5m]) > 1000) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
-        for: 2m
+        for: 0m
         labels:
           severity: warning
         annotations:
           summary: Host memory under memory pressure (instance {{ $labels.instance }})
           description: "The node is under heavy memory pressure. High rate of loading memory pages from disk.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-      - alert: HostMemoryIsUnderUtilized
+      - alert: HostMemoryIsUnderutilized
         expr: (min_over_time(node_memory_MemFree_bytes[1w]) > node_memory_MemTotal_bytes * .8) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 1w
         labels:
           severity: info
         annotations:
-          summary: Host Memory is under utilized (instance {{ $labels.instance }})
+          summary: Host Memory is underutilized (instance {{ $labels.instance }})
           description: "Node memory usage is < 20% for 1 week. Consider reducing memory space.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostSwapIsFillingUp
         expr: ((1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) * 100 > 80) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
@@ -51,14 +51,6 @@ groups:
         annotations:
           summary: Host swap is filling up (instance {{ $labels.instance }})
           description: "Swap is filling up (>80%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-      - alert: HostEdacCorrectableErrorsDetected
-        expr: increase(node_edac_correctable_errors_total[1m]) > 0
-        for: 0m
-        labels:
-          severity: page
-        annotations:
-          summary: "Host EDAC Correctable Errors detected (instance {{ $labels.instance }})"
-          description: "Host {{ $labels.instance }} has had {{ printf \"%.0f\" $value }} correctable memory errors reported by EDAC in the last 5 minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostEdacCorrectableErrorsDetected
         expr: (increase(node_edac_correctable_errors_total[1m]) > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m

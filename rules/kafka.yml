@@ -7,17 +7,17 @@ groups:
         labels:
           severity: page
         annotations:
-          summary: "Kafka topics replicas (instance {{ $labels.instance }})"
+          summary: Kafka topics replicas (instance {{ $labels.instance }})
           description: "Kafka topic in-sync partition\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
-      - alert: KafkaConsumersGroup
-        expr: sum(kafka_consumergroup_lag) by (consumergroup) > 50
+      - alert: KafkaConsumerGroupLag
+        expr: sum(kafka_consumergroup_lag) by (consumergroup) > 10000
         for: 1m
         labels:
           severity: page
         annotations:
-          summary: "Kafka consumers group (instance {{ $labels.instance }})"
-          description: "Kafka consumers group\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: Kafka consumer group lag (instance {{ $labels.instance }})
+          description: "Kafka consumer group {{ $labels.consumergroup }} is lagging behind ({{ $value }} messages)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: KafkaTopicOffsetDecreased
         expr: delta(kafka_burrow_partition_current_offset[1m]) < 0
@@ -25,14 +25,14 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Kafka topic offset decreased (instance {{ $labels.instance }})"
+          summary: Kafka topic offset decreased (instance {{ $labels.instance }})
           description: "Kafka topic offset has decreased\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
-      - alert: KafkaConsumerGroupLag
+      - alert: KafkaConsumerLag
         expr: kafka_burrow_topic_partition_offset - on(partition, cluster, topic) group_right() kafka_burrow_partition_current_offset >= (kafka_burrow_topic_partition_offset offset 15m - on(partition, cluster, topic) group_right() kafka_burrow_partition_current_offset offset 15m) AND kafka_burrow_topic_partition_offset - on(partition, cluster, topic) group_right() kafka_burrow_partition_current_offset > 0
         for: 15m
         labels:
           severity: warning
         annotations:
-          summary: "Kafka consumer group lag (instance {{ $labels.instance }})"
+          summary: Kafka consumer lag (instance {{ $labels.instance }})
           description: "Kafka consumer has a 30 minutes and increasing lag\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

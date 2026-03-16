@@ -4,15 +4,23 @@ groups:
     rules:
       - alert: BlackboxProbeFailed
         expr: probe_success == 0
-        for: 5m
+        for: 0m
         labels:
           severity: page
         annotations:
           summary: Blackbox probe failed (instance {{ $labels.instance }})
           description: "Probe failed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: BlackboxConfigurationReloadFailure
+        expr: blackbox_exporter_config_last_reload_successful != 1
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Blackbox configuration reload failure (instance {{ $labels.instance }})
+          description: "Blackbox configuration reload failure\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: BlackboxSlowProbe
         expr: avg_over_time(probe_duration_seconds[1m]) > 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
         annotations:
@@ -20,7 +28,7 @@ groups:
           description: "Blackbox probe took more than 1s to complete\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: BlackboxProbeHttpFailure
         expr: probe_http_status_code <= 199 OR probe_http_status_code >= 400
-        for: 5m
+        for: 0m
         labels:
           severity: page
         annotations:
@@ -28,7 +36,7 @@ groups:
           description: "HTTP status code is not 200-399\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: BlackboxSslCertificateWillExpireSoon
         expr: 3 <= round((last_over_time(probe_ssl_earliest_cert_expiry[10m]) - time()) / 86400, 0.1) < 20
-        for: 5m
+        for: 0m
         labels:
           severity: page
         annotations:
@@ -36,15 +44,15 @@ groups:
           description: "SSL certificate expires in less than 20 days\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: BlackboxSslCertificateWillExpireVerySoon
         expr: 0 <= round((last_over_time(probe_ssl_earliest_cert_expiry[10m]) - time()) / 86400, 0.1) < 3
-        for: 5m
+        for: 0m
         labels:
           severity: page
         annotations:
-          summary: Blackbox SSL certificate will expire soon (instance {{ $labels.instance }})
+          summary: Blackbox SSL certificate will expire very soon (instance {{ $labels.instance }})
           description: "SSL certificate expires in less than 3 days\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: BlackboxSslCertificateExpired
         expr: round((last_over_time(probe_ssl_earliest_cert_expiry[10m]) - time()) / 86400, 0.1) < 0
-        for: 5m
+        for: 0m
         labels:
           severity: page
         annotations:
@@ -52,7 +60,7 @@ groups:
           description: "SSL certificate has expired already\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: BlackboxProbeSlowHttp
         expr: avg_over_time(probe_http_duration_seconds[1m]) > 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
         annotations:
@@ -60,7 +68,7 @@ groups:
           description: "HTTP request took more than 1s\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: BlackboxProbeSlowPing
         expr: avg_over_time(probe_icmp_duration_seconds[1m]) > 1
-        for: 5m
+        for: 1m
         labels:
           severity: warning
         annotations:
