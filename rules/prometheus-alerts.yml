@@ -29,13 +29,40 @@ groups:
           summary: "Prometheus all targets missing (instance {{ $labels.instance }})"
           description: "A Prometheus job does not have living target anymore.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
+      - alert: PrometheusTargetMissingWithWarmupTime
+        expr: sum by (instance, job) ((up == 0) * on (instance) group_left(__name__) (node_time_seconds - node_boot_time_seconds > 600))
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prometheus target missing with warmup time (instance {{ $labels.instance }})"
+          description: "Allow a job time to start up (10 minutes) before alerting that it's down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusConfigurationReloadFailure
+        expr: prometheus_config_last_reload_successful != 1
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus configuration reload failure (instance {{ $labels.instance }})"
+          description: "Prometheus configuration reload error\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusAlertmanagerJobMissing
+        expr: absent(up{job="alertmanager"})
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus AlertManager job missing (instance {{ $labels.instance }})"
+          description: "A Prometheus AlertManager job has disappeared\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
       - alert: PrometheusAlertmanagerConfigurationReloadFailure
         expr: alertmanager_config_last_reload_successful != 1
-        for: 5m
+        for: 0m
         labels:
           severity: error
         annotations:
-          summary: "AlertManager configuration reload (instance {{ $labels.instance }})"
+          summary: "Prometheus AlertManager configuration reload failure (instance {{ $labels.instance }})"
           description: "AlertManager configuration reload error\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PrometheusAlertmanagerConfigNotSynced
@@ -67,7 +94,7 @@ groups:
 
       - alert: PrometheusNotConnectedToAlertmanager
         expr: prometheus_notifications_alertmanagers_discovered < 1
-        for: 5m
+        for: 0m
         labels:
           severity: error
         annotations:
@@ -226,3 +253,12 @@ groups:
         annotations:
           summary: "Prometheus TSDB WAL truncations failed (instance {{ $labels.instance }})"
           description: "Prometheus encountered {{ $value }} TSDB WAL truncation failures\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PrometheusTimeseriesCardinality
+        expr: label_replace(count by(__name__) ({__name__=~".+"}), "name", "$1", "__name__", "(.+)") > 10000
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus timeseries cardinality (instance {{ $labels.instance }})"
+          description: "The \"{{ $labels.name }}\" timeseries cardinality is getting very high: {{ $value }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

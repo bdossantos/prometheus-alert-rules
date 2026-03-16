@@ -2,35 +2,35 @@
 groups:
   - name: nomad
     rules:
-      - alert: NomadJobSummaryFailed
-        expr: sum by (exported_job) (increase(nomad_nomad_job_summary_failed[2m])) > 0
+      - alert: NomadJobFailed
+        expr: nomad_nomad_job_summary_failed > 0
         for: 0m
         labels:
           severity: page
         annotations:
-          summary: "A nomad job failed (instance {{ $labels.instance }})"
-          description: "Detected a failed nomad job {{ humanize $value }}%."
-      - alert: NomadJobSummaryLost
-        expr: sum by (exported_job) (increase(nomad_nomad_job_summary_lost[2m])) > 0
+          summary: Nomad job failed (instance {{ $labels.instance }})
+          description: "Nomad job failed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: NomadJobLost
+        expr: nomad_nomad_job_summary_lost > 0
         for: 0m
         labels:
           severity: page
         annotations:
-          summary: "We lost a nomad job (instance {{ $labels.instance }})"
-          description: "Detected a lost nomad job {{ humanize $value }}%."
-      - alert: NomadJobSummaryQueued
-        expr: sum by (exported_job) (increase(nomad_nomad_job_summary_queued[2m])) > 0
+          summary: Nomad job lost (instance {{ $labels.instance }})
+          description: "Nomad job lost\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: NomadJobQueued
+        expr: nomad_nomad_job_summary_queued > 0
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: Nomad job queued (instance {{ $labels.instance }})
+          description: "Nomad job queued\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: NomadBlockedEvaluation
+        expr: nomad_nomad_blocked_evals_total_blocked > 0
         for: 0m
         labels:
           severity: page
         annotations:
-          summary: "Some nomad job are queued (instance {{ $labels.instance }})"
-          description: "Detected queued nomad job(s) {{ humanize $value }}%."
-      - alert: NomadBlockedEvalsTotalBlocked
-        expr: increase(nomad_nomad_blocked_evals_total_blocked[2m]) > 0
-        for: 0m
-        labels:
-          severity: page
-        annotations:
-          summary: "Nomad blocked evaluation {{ $labels.instance }})"
-          description: "Detected a blocked nomad evaluation {{ humanize $value }}%."
+          summary: Nomad blocked evaluation (instance {{ $labels.instance }})
+          description: "Nomad blocked evaluation\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

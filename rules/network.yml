@@ -2,30 +2,22 @@
 groups:
   - name: network
     rules:
-      - alert: HostMemoryIsUnderUtilized
-        expr: '(min_over_time(node_memory_MemFree_bytes[1w]) > node_memory_MemTotal_bytes * .8) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
-        for: 1w
-        labels:
-          severity: info
-        annotations:
-          summary: Host Memory is under utilized (instance {{ $labels.instance }})
-          description: "Node memory usage is < 20% for 1 week. Consider reducing memory space.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostUnusualNetworkThroughputIn
         expr: '((rate(node_network_receive_bytes_total[5m]) / node_network_speed_bytes) > .80) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
-        for: 5m
+        for: 0m
         labels:
           severity: warning
         annotations:
-          summary: "Unusual network throughput in (instance {{ $labels.instance }})"
+          summary: Host unusual network throughput in (instance {{ $labels.instance }})
           description: "Host receive bandwidth is high (>80%).\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostUnusualNetworkThroughputOut
         expr: '((rate(node_network_transmit_bytes_total[5m]) / node_network_speed_bytes) > .80) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
-        for: 5m
+        for: 0m
         labels:
           severity: warning
         annotations:
-          summary: "Unusual network throughput out (instance {{ $labels.instance }})"
-          description: "Host transmit bandwidth is high (>80%).\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: Host unusual network throughput out (instance {{ $labels.instance }})
+          description: "Host transmit bandwidth is high (>80%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostNetworkInterfaceSaturated
         expr: '((rate(node_network_receive_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m]) + rate(node_network_transmit_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m])) / node_network_speed_bytes{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"} > 0.8 < 10000) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 15m
@@ -58,3 +50,11 @@ groups:
         annotations:
           summary: Host Network Transmit Errors (instance {{ $labels.instance }})
           description: "Host {{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf \"%.0f\" $value }} transmit errors in the last two minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: HostNetworkReceiveErrors
+        expr: '(rate(node_network_receive_errs_total[2m]) / rate(node_network_receive_packets_total[2m]) > 0.01) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Host Network Receive Errors (instance {{ $labels.instance }})
+          description: "Host {{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf \"%.0f\" $value }} receive errors in the last two minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
