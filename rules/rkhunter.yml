@@ -1,0 +1,20 @@
+---
+groups:
+  - name: rkhunter
+    rules:
+      - alert: RkhunterWarningsDetected
+        expr: (rkhunter_warnings_total > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Rkhunter warnings detected (instance {{ $labels.instance }})
+          description: "rkhunter has detected one or more warnings. Review the rkhunter log for potential security issues.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: RkhunterScanNotRunRecently
+        expr: ((time() - rkhunter_last_run_timestamp) > 86400) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Rkhunter scan not run recently (instance {{ $labels.instance }})
+          description: "rkhunter has not been run in more than 1 day. Schedule a rootkit scan.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
