@@ -1,0 +1,57 @@
+---
+groups:
+  - name: thumbor
+    rules:
+      - alert: ThumborDown
+        expr: absent(thumbor_response_count_total)
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Thumbor down (instance {{ $labels.instance }})
+          description: "Thumbor instance is down or unreachable\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: ThumborHighErrorRate
+        expr: sum by (instance) (rate(thumbor_response_status_total{statuscode=~"5.."}[5m])) / sum by (instance) (rate(thumbor_response_status_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: Thumbor high error rate (instance {{ $labels.instance }})
+          description: "Thumbor is returning a high rate of 5xx errors (> 5%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: ThumborHighResponseTime
+        expr: sum by (instance) (rate(thumbor_response_time_sum{statuscode_extension="response.time"}[5m])) / sum by (instance) (rate(thumbor_response_time_count{statuscode_extension="response.time"}[5m])) > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Thumbor high response time (instance {{ $labels.instance }})
+          description: "Thumbor average response time is above 1s\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: ThumborLowResultStorageHitRatio
+        expr: sum by (instance) (rate(thumbor_result__storage_hit_total[5m])) / (sum by (instance) (rate(thumbor_result__storage_hit_total[5m])) + sum by (instance) (rate(thumbor_result__storage_miss_total[5m]))) < 0.5
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Thumbor low result storage hit ratio (instance {{ $labels.instance }})
+          description: "Thumbor result storage cache hit ratio is below 50%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: ThumborLowStorageHitRatio
+        expr: sum by (instance) (rate(thumbor_storage_hit_total[5m])) / (sum by (instance) (rate(thumbor_storage_hit_total[5m])) + sum by (instance) (rate(thumbor_storage_miss_total[5m]))) < 0.5
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Thumbor low source storage hit ratio (instance {{ $labels.instance }})
+          description: "Thumbor source storage cache hit ratio is below 50%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: ThumborHighUpstreamFetchLatency
+        expr: sum by (instance, networklocation) (rate(thumbor_original__image_fetch_latency_sum[5m])) / sum by (instance, networklocation) (rate(thumbor_original__image_fetch_latency_count[5m])) > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Thumbor high upstream fetch latency (instance {{ $labels.instance }})
+          description: "Thumbor upstream image fetch average latency is above 1s\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
