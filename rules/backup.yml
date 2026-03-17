@@ -1,19 +1,35 @@
 groups:
   - name: backup
     rules:
-      - alert: BackupFailed
-        expr: exit_code{job="backup"} != 0
-        for: 12h
+      - alert: BackupCheckFailed
+        expr: (restic_check_success == 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 0m
         labels:
           severity: page
         annotations:
-          summary: "Backup job failed on `{{ $labels.instance }}`"
-          description: "Backup cron job failed on `{{ $labels.instance }}` with the following exit code ({{ $value }})"
-      - alert: MissingDailyBackupStatus
-        expr: count(exit_code{job="backup"} offset 24h) by (instance) unless count(exit_code{job="backup"}) by (instance)
-        for: 1h
+          summary: Backup check failed (instance {{ $labels.instance }})
+          description: "Restic repository integrity check failed or did not complete successfully.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: BackupNotRunRecently
+        expr: ((time() - backup_last_run_timestamp_seconds) > 90000) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 0m
         labels:
-          severity: critical
+          severity: page
         annotations:
-          summary: "Daily backup job status is missing on `{{ $labels.instance }}`"
-          description: "Automatic scheduled backup appear to not running on `{{ $labels.instance }}`"
+          summary: Backup not run recently (instance {{ $labels.instance }})
+          description: "Backup has not run in more than 25 hours.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: BackupRepositoryLocked
+        expr: (restic_locks_total > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Backup repository locked (instance {{ $labels.instance }})
+          description: "Restic repository has stale lock(s) which may prevent backups from running.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: BackupDurationTooLong
+        expr: (restic_backup_duration_seconds > 21600) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Backup duration too long (instance {{ $labels.instance }})
+          description: "Last backup took more than 6 hours to complete.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
