@@ -11,7 +11,7 @@ groups:
           summary: systemd-resolved high DNS timeouts (instance {{ $labels.instance }})
           description: "systemd-resolved is experiencing a high rate of DNS timeouts (> 0.5/s over 5m). DNS resolution may be degraded.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: SystemdResolvedHighDnsFailureResponses
-        expr: (rate(systemd_resolved_failure_responses_total[5m]) / rate(systemd_resolved_transactions_total[5m]) > 0.05) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        expr: (rate(systemd_resolved_failure_responses_total[5m]) / (rate(systemd_resolved_transactions_total[5m]) > 0) > 0.05) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 5m
         labels:
           severity: warning
@@ -19,7 +19,7 @@ groups:
           summary: systemd-resolved high DNS failure rate (instance {{ $labels.instance }})
           description: "More than 5% of DNS queries are failing. DNS infrastructure may be unhealthy.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: SystemdResolvedLowCacheHitRate
-        expr: (rate(systemd_resolved_cache_hits_total[15m]) / (rate(systemd_resolved_cache_hits_total[15m]) + rate(systemd_resolved_cache_misses_total[15m])) < 0.2) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        expr: (rate(systemd_resolved_cache_hits_total[15m]) / ((rate(systemd_resolved_cache_hits_total[15m]) + rate(systemd_resolved_cache_misses_total[15m])) > 0) < 0.2) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 30m
         labels:
           severity: info
