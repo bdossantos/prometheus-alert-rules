@@ -1,0 +1,44 @@
+---
+groups:
+  - name: systemd-resolved
+    rules:
+      - alert: SystemdResolvedHighDnsTimeouts
+        expr: (rate(systemd_resolved_timeouts_total[5m]) > 0.5) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: systemd-resolved high DNS timeouts (instance {{ $labels.instance }})
+          description: "systemd-resolved is experiencing a high rate of DNS timeouts (> 0.5/s over 5m). DNS resolution may be degraded.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: SystemdResolvedHighDnsFailureResponses
+        expr: (rate(systemd_resolved_failure_responses_total[5m]) / rate(systemd_resolved_transactions_total[5m]) > 0.05) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: systemd-resolved high DNS failure rate (instance {{ $labels.instance }})
+          description: "More than 5% of DNS queries are failing. DNS infrastructure may be unhealthy.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: SystemdResolvedLowCacheHitRate
+        expr: (rate(systemd_resolved_cache_hits_total[15m]) / (rate(systemd_resolved_cache_hits_total[15m]) + rate(systemd_resolved_cache_misses_total[15m])) < 0.2) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 30m
+        labels:
+          severity: info
+        annotations:
+          summary: systemd-resolved low cache hit rate (instance {{ $labels.instance }})
+          description: "DNS cache hit rate is below 20% over the last 15 minutes. This may indicate an unusual query pattern or cache configuration issue.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: SystemdResolvedDnssecBogus
+        expr: (increase(systemd_resolved_dnssec_bogus_total[5m]) > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: systemd-resolved DNSSEC bogus validation detected (instance {{ $labels.instance }})
+          description: "DNSSEC validation failures (bogus) have been detected. This may indicate DNS spoofing or misconfigured DNSSEC.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: SystemdResolvedHighPendingTransactions
+        expr: (systemd_resolved_transactions_current > 100) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: systemd-resolved high pending DNS transactions (instance {{ $labels.instance }})
+          description: "systemd-resolved has more than 100 pending DNS transactions. DNS resolution may be stalled or upstream servers may be unresponsive.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
