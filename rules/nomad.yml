@@ -3,7 +3,7 @@ groups:
   - name: nomad
     rules:
       - alert: NomadJobFailed
-        expr: increase(nomad_nomad_job_summary_failed[5m]) > 0
+        expr: changes(nomad_nomad_job_summary_failed[5m]) > 0 and nomad_nomad_job_summary_failed > 0
         for: 2m
         labels:
           severity: page
@@ -11,7 +11,7 @@ groups:
           summary: Nomad job failed (instance {{ $labels.instance }})
           description: "Nomad job failed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: NomadJobLost
-        expr: increase(nomad_nomad_job_summary_lost[5m]) > 0
+        expr: changes(nomad_nomad_job_summary_lost[5m]) > 0 and nomad_nomad_job_summary_lost > 0
         for: 2m
         labels:
           severity: page
@@ -27,8 +27,8 @@ groups:
           summary: Nomad job queued (instance {{ $labels.instance }})
           description: "Nomad job queued\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: NomadBlockedEvaluation
-        expr: nomad_nomad_blocked_evals_total_blocked > 0
-        for: 0m
+        expr: changes(nomad_nomad_blocked_evals_total_blocked[5m]) > 0 and nomad_nomad_blocked_evals_total_blocked > 0
+        for: 2m
         labels:
           severity: page
         annotations:
