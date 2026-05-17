@@ -45,9 +45,9 @@ fail2ban_up 1
 # HELP fail2ban_failed_current Number of currently failed attempts per jail
 # TYPE fail2ban_failed_current gauge
 # HELP fail2ban_failed_total Total number of failed attempts per jail
-# TYPE fail2ban_failed_total gauge
+# TYPE fail2ban_failed_total counter
 # HELP fail2ban_total_bans Total number of bans per jail
-# TYPE fail2ban_total_bans gauge
+# TYPE fail2ban_total_bans counter
 EOF
 
 for jail in ${jails}; do
