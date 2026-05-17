@@ -52,12 +52,15 @@ EOF
 
 for jail in ${jails}; do
   status=$("${FAIL2BAN_CLIENT}" status "${jail}") || continue
-  banned=$(echo "${status}" | grep 'Currently banned:' | awk '{print $NF}')
-  failed=$(echo "${status}" | grep 'Currently failed:' | awk '{print $NF}')
-  total_failed=$(echo "${status}" | grep 'Total failed:' | awk '{print $NF}')
-  total_bans=$(echo "${status}" | grep 'Total banned:' | awk '{print $NF}')
-  echo "fail2ban_banned_ips{jail=\"${jail}\"} ${banned:-0}"
-  echo "fail2ban_failed_current{jail=\"${jail}\"} ${failed:-0}"
-  echo "fail2ban_failed_total{jail=\"${jail}\"} ${total_failed:-0}"
-  echo "fail2ban_total_bans{jail=\"${jail}\"} ${total_bans:-0}"
+  banned=$(echo "${status}" | grep 'Currently banned:' | awk '{print $NF}' || true)
+  failed=$(echo "${status}" | grep 'Currently failed:' | awk '{print $NF}' || true)
+  total_failed=$(echo "${status}" | grep 'Total failed:' | awk '{print $NF}' || true)
+  total_bans=$(echo "${status}" | grep 'Total banned:' | awk '{print $NF}' || true)
+  # Escape label value: backslashes first, then double-quotes
+  jail_label="${jail//\\/\\\\}"
+  jail_label="${jail_label//\"/\\\"}"
+  echo "fail2ban_banned_ips{jail=\"${jail_label}\"} ${banned:-0}"
+  echo "fail2ban_failed_current{jail=\"${jail_label}\"} ${failed:-0}"
+  echo "fail2ban_failed_total{jail=\"${jail_label}\"} ${total_failed:-0}"
+  echo "fail2ban_total_bans{jail=\"${jail_label}\"} ${total_bans:-0}"
 done
