@@ -1,0 +1,75 @@
+---
+groups:
+  - name: memcached
+    rules:
+      - alert: MemcachedDown
+        expr: memcached_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Memcached down (instance {{ $labels.instance }})
+          description: "Memcached instance is down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: MemcachedHitRateLow
+        expr: rate(memcached_commands_total{command="get", status="hit"}[5m]) / (rate(memcached_commands_total{command="get", status="hit"}[5m]) + rate(memcached_commands_total{command="get", status="miss"}[5m])) * 100 < 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Memcached hit rate low (instance {{ $labels.instance }})
+          description: "Memcached cache hit rate is below 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: MemcachedHighEvictionRate
+        expr: rate(memcached_items_evicted_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Memcached high eviction rate (instance {{ $labels.instance }})
+          description: "Memcached is evicting items at a high rate (> 10/s over 5m)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: MemcachedOutOfMemory
+        expr: memcached_current_bytes / memcached_limit_bytes * 100 > 90
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: Memcached out of memory (instance {{ $labels.instance }})
+          description: "Memcached is running out of memory (> 90% used)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: MemcachedMaxConnectionsReached
+        expr: memcached_current_connections / memcached_max_connections * 100 > 90
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: Memcached max connections reached (instance {{ $labels.instance }})
+          description: "Memcached is running out of connections (> 90% used)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: MemcachedConnectionsYielded
+        expr: rate(memcached_connections_yielded_total[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Memcached connections yielded (instance {{ $labels.instance }})
+          description: "Memcached connections are being yielded at a high rate, indicating connection saturation\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: MemcachedConnectionsListenerDisabled
+        expr: increase(memcached_connections_listener_disabled_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: Memcached listener disabled (instance {{ $labels.instance }})
+          description: "Memcached connection listener has been disabled due to hitting connection limits\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: MemcachedHighCurrentItems
+        expr: memcached_current_items > 5e6
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Memcached high item count (instance {{ $labels.instance }})
+          description: "Memcached has more than 5 million items stored\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
