@@ -51,6 +51,7 @@ Each file in `rules/` targets a specific system or service. All alert names use 
 | `kernel.yml` | Kernel version deviations across the fleet |
 | `lynis.yml` | Lynis hardening index, warnings, suggestions, and audit freshness |
 | `md.yml` | Software RAID array state and disk failures |
+| `memcached.yml` | Memcached availability, hit rate, evictions, memory, and connection saturation |
 | `memory.yml` | Host memory, OOM kills, swap usage, and ECC errors |
 | `mimir-alerts.yml` | Grafana Mimir component health, ingestion, compaction, and ruler alerts |
 | `mimir-rules.yml` | Grafana Mimir recording rules for API and component metrics |
