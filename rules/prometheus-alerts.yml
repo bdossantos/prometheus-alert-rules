@@ -241,10 +241,11 @@ groups:
           summary: "Prometheus TSDB WAL truncations failed (instance {{ $labels.instance }})"
           description: "Prometheus encountered {{ $value }} TSDB WAL truncation failures\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
-  # count by (__name__) ({__name__=~".+"}) scans every series: evaluate it hourly
-  # instead of at the global evaluation interval.
+  # count by (__name__) ({__name__=~".+"}) scans every series: evaluate it
+  # every 5m instead of at the global evaluation interval. Not longer: above the 5m
+  # lookback the ALERTS series would have gaps (pint group/interval).
   - name: prometheus-cardinality
-    interval: 1h
+    interval: 5m
     rules:
       - alert: PrometheusTimeseriesCardinality
         expr: label_replace(count by(__name__) ({__name__=~".+"}), "name", "$1", "__name__", "(.+)") > 10000
