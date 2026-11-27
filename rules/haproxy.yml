@@ -1,6 +1,6 @@
 ---
 groups:
-  - name: Haproxy
+  - name: haproxy
     rules:
       - alert: HaproxyHighHttp4xxErrorRateServer
         expr: sum by (server) (rate(haproxy_server_http_responses_total{code="4xx"}[1m]) * 100) / sum by (server) (rate(haproxy_server_http_responses_total[1m])) > 5

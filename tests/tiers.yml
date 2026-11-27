@@ -1,0 +1,105 @@
+rule_files:
+  - ../rules/lynis.yml
+  - ../rules/elasticsearch.yml
+
+evaluation_interval: 1m
+
+# Tiered alert pairs are exclusive ranges: a value only trips one tier, so one
+# problem does not raise two alerts at once.
+tests:
+  - name: lynis hardening index, only one tier fires
+    interval: 1m
+    input_series:
+      - series: 'lynis_hardening_index{instance="a:9100"}'
+        values: '35x10'
+      - series: 'lynis_hardening_index{instance="b:9100"}'
+        values: '50x10'
+      - series: 'node_uname_info{instance="a:9100", nodename="a"}'
+        values: '1x10'
+      - series: 'node_uname_info{instance="b:9100", nodename="b"}'
+        values: '1x10'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: LynisVeryLowHardeningIndex
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              instance: "a:9100"
+              nodename: a
+            exp_annotations:
+              summary: Lynis very low hardening index (instance a:9100)
+              description: "Lynis hardening index is very low (< 40/100). Immediate security improvements are required.\n  VALUE = 35\n  LABELS = map[instance:a:9100 nodename:a]"
+      - eval_time: 5m
+        alertname: LynisLowHardeningIndex
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "b:9100"
+              nodename: b
+            exp_annotations:
+              summary: Lynis low hardening index (instance b:9100)
+              description: "Lynis hardening index is low (40-59/100). Review security recommendations.\n  VALUE = 50\n  LABELS = map[instance:b:9100 nodename:b]"
+
+  - name: elasticsearch heap usage, only one tier fires
+    interval: 1m
+    input_series:
+      - series: 'elasticsearch_jvm_memory_used_bytes{instance="es1:9114", area="heap"}'
+        values: '85x20'
+      - series: 'elasticsearch_jvm_memory_max_bytes{instance="es1:9114", area="heap"}'
+        values: '100x20'
+      - series: 'elasticsearch_jvm_memory_used_bytes{instance="es2:9114", area="heap"}'
+        values: '95x20'
+      - series: 'elasticsearch_jvm_memory_max_bytes{instance="es2:9114", area="heap"}'
+        values: '100x20'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: ElasticsearchHeapUsageWarning
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "es1:9114"
+              area: heap
+            exp_annotations:
+              summary: Elasticsearch Heap Usage warning (instance es1:9114)
+              description: "The heap usage is between 80% and 90%\n  VALUE = 85\n  LABELS = map[area:heap instance:es1:9114]"
+      - eval_time: 10m
+        alertname: ElasticsearchHeapUsageTooHigh
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              instance: "es2:9114"
+              area: heap
+            exp_annotations:
+              summary: Elasticsearch Heap Usage Too High (instance es2:9114)
+              description: "The heap usage is over 90%\n  VALUE = 95\n  LABELS = map[area:heap instance:es2:9114]"
+
+  - name: elasticsearch disk space, only one tier fires
+    interval: 1m
+    input_series:
+      - series: 'elasticsearch_filesystem_data_available_bytes{instance="es1:9114"}'
+        values: '15x20'
+      - series: 'elasticsearch_filesystem_data_size_bytes{instance="es1:9114"}'
+        values: '100x20'
+      - series: 'elasticsearch_filesystem_data_available_bytes{instance="es2:9114"}'
+        values: '5x20'
+      - series: 'elasticsearch_filesystem_data_size_bytes{instance="es2:9114"}'
+        values: '100x20'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: ElasticsearchDiskSpaceLow
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "es1:9114"
+            exp_annotations:
+              summary: Elasticsearch disk space low (instance es1:9114)
+              description: "The disk usage is between 80% and 90%\n  VALUE = 15\n  LABELS = map[instance:es1:9114]"
+      - eval_time: 10m
+        alertname: ElasticsearchDiskOutOfSpace
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              instance: "es2:9114"
+            exp_annotations:
+              summary: Elasticsearch disk out of space (instance es2:9114)
+              description: "The disk usage is over 90%\n  VALUE = 5\n  LABELS = map[instance:es2:9114]"
