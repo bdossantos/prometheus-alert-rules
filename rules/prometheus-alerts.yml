@@ -86,6 +86,7 @@ groups:
       - alert: PrometheusAlertmanagerE2eDeadManSwitch
         # Always firing on purpose: route severity "none" to a heartbeat receiver
         # (dead man's switch), never to the paging one.
+        # pint disable alerts/comparison
         expr: vector(1)
         for: 0m
         labels:
