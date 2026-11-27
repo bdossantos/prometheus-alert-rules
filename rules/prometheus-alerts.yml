@@ -8,7 +8,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Prometheus job missing (instance {{ $labels.instance }})"
+          summary: "Prometheus job missing"
           description: "A Prometheus job has disappeared\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PrometheusTargetMissing
@@ -30,7 +30,7 @@ groups:
           description: "A Prometheus job does not have living target anymore.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PrometheusTargetMissingWithWarmupTime
-        expr: sum by (instance, job) ((up == 0) * on (instance) group_left(__name__) (node_time_seconds - node_boot_time_seconds > 600))
+        expr: sum by (instance, job) ((up == 0) * on (instance) group_left() (node_time_seconds - node_boot_time_seconds > 600))
         for: 5m
         labels:
           severity: page
@@ -53,7 +53,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Prometheus AlertManager job missing (instance {{ $labels.instance }})"
+          summary: "Prometheus AlertManager job missing"
           description: "A Prometheus AlertManager job has disappeared\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PrometheusAlertmanagerConfigurationReloadFailure
@@ -71,7 +71,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Prometheus AlertManager config not synced (instance {{ $labels.instance }})"
+          summary: "Prometheus AlertManager config not synced"
           description: "Configurations of AlertManager cluster instances are out of sync\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PrometheusTooManyRestarts
@@ -91,7 +91,7 @@ groups:
         labels:
           severity: none
         annotations:
-          summary: "Prometheus AlertManager E2E dead man switch (instance {{ $labels.instance }})"
+          summary: "Prometheus AlertManager E2E dead man switch"
           description: "Prometheus DeadManSwitch is an always-firing alert. It's used as an end-to-end test of Prometheus through the Alertmanager.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PrometheusNotConnectedToAlertmanager
@@ -262,5 +262,5 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Prometheus timeseries cardinality (instance {{ $labels.instance }})"
+          summary: "Prometheus timeseries cardinality"
           description: "The \"{{ $labels.name }}\" timeseries cardinality is getting very high: {{ $value }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
