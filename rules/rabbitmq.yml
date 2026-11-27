@@ -8,7 +8,7 @@ groups:
         labels:
           severity: page
         annotations:
-          summary: RabbitMQ node down (instance {{ $labels.instance }})
+          summary: RabbitMQ node down
           description: "Less than 3 nodes running in RabbitMQ cluster\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: RabbitmqNodeNotDistributed
         expr: erlang_vm_dist_node_state < 3
@@ -24,7 +24,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: RabbitMQ instances different versions (instance {{ $labels.instance }})
+          summary: RabbitMQ instances different versions
           description: "Running different version of RabbitMQ in the same cluster, can lead to failure.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: RabbitmqMemoryHigh
         expr: rabbitmq_process_resident_memory_bytes / rabbitmq_resident_memory_limit_bytes * 100 > 90 and rabbitmq_resident_memory_limit_bytes > 0
@@ -48,16 +48,16 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: RabbitMQ too many ready messages (instance {{ $labels.instance }})
-          description: "RabbitMQ too many ready messages on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: RabbitMQ too many ready messages (queue {{ $labels.queue }})
+          description: "RabbitMQ too many ready messages on queue {{ $labels.queue }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: RabbitmqTooManyUnackMessages
         expr: sum(rabbitmq_queue_messages_unacked) BY (queue) > 1000
         for: 1m
         labels:
           severity: page
         annotations:
-          summary: RabbitMQ too many unack messages (instance {{ $labels.instance }})
-          description: "Too many unacknowledged messages\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: RabbitMQ too many unack messages (queue {{ $labels.queue }})
+          description: "Too many unacknowledged messages on queue {{ $labels.queue }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: RabbitmqTooManyConnections
         expr: rabbitmq_connections > 1000
         for: 2m

@@ -53,7 +53,7 @@ groups:
           severity: page
         annotations:
           summary: "Galera cluster node on `{{ $labels.instance }}` out of sync"
-          description: "A Galera cluster node on `{{ $labels.instance }}` has not been in sync ({{ $value }} != 4) during the last 1m"
+          description: "A Galera cluster node on `{{ $labels.instance }}` has not been in sync ({{ $value }} != 4) during the last 10m"
 
       - alert: MySQLGaleraDonorFallingBehind
         expr: (mysql_global_status_wsrep_local_state == 2 AND mysql_global_status_wsrep_local_recv_queue > 1)
@@ -62,7 +62,7 @@ groups:
           severity: page
         annotations:
           summary: "Galera xtradb cluster donor node on `{{ $labels.instance }}` falling behind"
-          description: "A Galera cluster node on `{{ $labels.instance }}` is a donor (hotbackup) and has been falling behind (queue size {{ $value }}) during the last 1m"
+          description: "A Galera cluster node on `{{ $labels.instance }}` is a donor (hotbackup) and has been falling behind (queue size {{ $value }}) during the last 10m"
 
       - alert: MySQLGaleraFlowControlPaused
         expr: (mysql_global_status_wsrep_flow_control_paused == 1)
@@ -71,7 +71,7 @@ groups:
           severity: page
         annotations:
           summary: "Galera Cluster node on `{{ $labels.instance }}` paused due to Flow Control"
-          description: "A Galera Cluster node on `{{ $labels.instance }}` has been paused due to flow control during the last 1m"
+          description: "A Galera Cluster node on `{{ $labels.instance }}` has been paused due to flow control during the last 5m"
 
       - alert: MySQLGaleraCertFailures
         expr: (rate(mysql_global_status_wsrep_local_cert_failures[5m]) > 1)
@@ -80,7 +80,7 @@ groups:
           severity: page
         annotations:
           summary: "Galera Cluster node on `{{ $labels.instance }}` have cert failures"
-          description: "A Galera Cluster node on `{{ $labels.instance }}` has cert failures during the last 1m"
+          description: "A Galera Cluster node on `{{ $labels.instance }}` has cert failures during the last 5m"
 
       - alert: MySQLGaleraBfAborts
         expr: (rate(mysql_global_status_wsrep_local_bf_aborts[5m]) > 0)
@@ -98,7 +98,7 @@ groups:
           severity: page
         annotations:
           summary: "Galera Cluster node on `{{ $labels.instance }}` flow control pause too high"
-          description: "A Galera Cluster node on `{{ $labels.instance }}` had a flow control pause too high ({{ $value }}) during the last 1m"
+          description: "A Galera Cluster node on `{{ $labels.instance }}` had a flow control pause too high ({{ $value }}) during the last 5m"
 
       - alert: MySQLGaleraSendQueueLengthTooHigh
         expr: (mysql_global_status_wsrep_local_send_queue_avg > 2)
@@ -107,4 +107,4 @@ groups:
           severity: page
         annotations:
           summary: "Galera Cluster on `{{ $labels.instance }}` send queue length too high"
-          description: "Galera Cluster on `{{ $labels.instance }}` had a local send queue length too high ({{ $value }}) during the last 1m, It may indicate that replication throttling or network throughput issues"
+          description: "Galera Cluster on `{{ $labels.instance }}` had a local send queue length too high ({{ $value }}) during the last 30m. It may indicate that replication throttling or network throughput issues"

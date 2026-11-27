@@ -3,22 +3,25 @@ groups:
   - name: php-fpm
     rules:
       - alert: PhpFpmMaxChildrenReached
-        expr: (sum by (job) (rate(phpfpm_max_children_reached[5m]))) > 1
+        # phpfpm_max_children_reached is a counter: any sustained increase matters.
+        # (rate() > 1 meant more than one event per second, i.e. practically never.)
+        expr: (sum by (instance, job) (increase(phpfpm_max_children_reached[5m]))) > 0
         for: 5m
         labels:
           severity: page
         annotations:
-          summary: Number of childs process have been exceeded (instance {{ $labels.instance }})
-          description: "php-fpm process limit has been reached \n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: Number of child processes have been exceeded (instance {{ $labels.instance }})
+          description: "php-fpm process limit has been reached\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PhpFpmListenQueue>80%
-        expr: (sum by (job) (phpfpm_listen_queue / phpfpm_listen_queue_length)) > 0.8
+        # max, not sum: summing per-instance ratios makes two instances at 45% fire.
+        expr: (max by (instance, job) (phpfpm_listen_queue / phpfpm_listen_queue_length)) > 0.8
         for: 5m
         labels:
           severity: page
         annotations:
           summary: php-fpm listen queue > 80% (instance {{ $labels.instance }})
-          description: "Listen queue reached 80% of limit - {{ $value | printf \"%.2f\"}}%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Listen queue reached 80% of limit - {{ $value | humanizePercentage }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PhpFpmBusyProcess>80%
         expr: ((sum(phpfpm_active_processes) by (job) * 100) / sum(phpfpm_total_processes) by (job)) > 80
@@ -26,8 +29,8 @@ groups:
         labels:
           severity: page
         annotations:
-          summary: php-fpm busy process > 80% (instance {{ $labels.instance }})
-          description: "80% of processes are busy - {{ $value | printf \"%.2f\"}}%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: php-fpm busy process > 80% (job {{ $labels.job }})
+          description: "80% of processes are busy - {{ $value | printf \"%.2f\" }}%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PhpFpmSlowRequests
         expr: (rate(phpfpm_slow_requests[5m]) / rate(phpfpm_accepted_connections[5m])) > 0.1

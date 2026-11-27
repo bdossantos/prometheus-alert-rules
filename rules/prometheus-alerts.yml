@@ -26,7 +26,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Prometheus all targets missing (instance {{ $labels.instance }})"
+          summary: "Prometheus all targets missing (job {{ $labels.job }})"
           description: "A Prometheus job does not have living target anymore.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PrometheusTargetMissingWithWarmupTime

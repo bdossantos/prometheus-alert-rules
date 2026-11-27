@@ -13,12 +13,13 @@ groups:
       - alert: NodeHasConstantOOMKills
         # Alert if node has more than 3 OOM kills for last hour (1 every 5 minutes).
         # This is only way to detect OOM kills at the moment.
-        expr: increase(node_vmstat_oom_kill{}[1h]) > 3
+        expr: (increase(node_vmstat_oom_kill[1h]) > 3) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 10m
         labels:
           severity: page
         annotations:
-          description: Node {{ $labels.ip }} has constant OOM kills.
+          summary: Node has constant OOM kills (instance {{ $labels.instance }})
+          description: "Node {{ $labels.instance }} has had more than 3 OOM kills in the last hour.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostOomKillDetected
         expr: (increase(node_vmstat_oom_kill[30m]) > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m
@@ -58,7 +59,7 @@ groups:
           severity: info
         annotations:
           summary: Host EDAC Correctable Errors detected (instance {{ $labels.instance }})
-          description: "Host {{ $labels.instance }} has had {{ printf \"%.0f\" $value }} correctable memory errors reported by EDAC in the last 5 minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Host {{ $labels.instance }} has had {{ printf \"%.0f\" $value }} correctable memory errors reported by EDAC in the last minute.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostEdacUncorrectableErrorsDetected
         expr: (node_edac_uncorrectable_errors_total > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m
@@ -66,4 +67,4 @@ groups:
           severity: warning
         annotations:
           summary: Host EDAC Uncorrectable Errors detected (instance {{ $labels.instance }})
-          description: "Host {{ $labels.instance }} has had {{ printf \"%.0f\" $value }} uncorrectable memory errors reported by EDAC in the last 5 minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Host {{ $labels.instance }} has had {{ printf \"%.0f\" $value }} uncorrectable memory errors reported by EDAC since boot.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

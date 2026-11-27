@@ -1,0 +1,30 @@
+rule_files:
+  - ../rules/memory.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: NodeHasConstantOOMKills renders instance and hostname (it used a non-existent ip label)
+    interval: 1m
+    input_series:
+      # one OOM kill per minute: 60 in the last hour, above the threshold of 3
+      - series: 'node_vmstat_oom_kill{instance="a:9100"}'
+        values: '0+1x180'
+      - series: 'node_uname_info{instance="a:9100", nodename="a"}'
+        values: '1x180'
+      # a single OOM kill, well below the threshold
+      - series: 'node_vmstat_oom_kill{instance="b:9100"}'
+        values: '0x60 1x120'
+      - series: 'node_uname_info{instance="b:9100", nodename="b"}'
+        values: '1x180'
+    alert_rule_test:
+      - eval_time: 120m
+        alertname: NodeHasConstantOOMKills
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              instance: "a:9100"
+              nodename: a
+            exp_annotations:
+              summary: Node has constant OOM kills (instance a:9100)
+              description: "Node a:9100 has had more than 3 OOM kills in the last hour.\n  VALUE = 60\n  LABELS = map[instance:a:9100 nodename:a]"

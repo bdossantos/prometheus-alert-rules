@@ -1,0 +1,49 @@
+rule_files:
+  - ../rules/disk.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: inode and space alerts ignore tmpfs and nfs4, but still catch a real filesystem
+    interval: 1m
+    input_series:
+      - series: 'node_uname_info{instance="a:9100", nodename="a"}'
+        values: '1x20'
+      # tmpfs, almost out of inodes and space: must be ignored
+      - series: 'node_filesystem_files_free{instance="a:9100", device="tmpfs", mountpoint="/run", fstype="tmpfs"}'
+        values: '5x20'
+      - series: 'node_filesystem_files{instance="a:9100", device="tmpfs", mountpoint="/run", fstype="tmpfs"}'
+        values: '100x20'
+      - series: 'node_filesystem_readonly{instance="a:9100", device="tmpfs", mountpoint="/run", fstype="tmpfs"}'
+        values: '0x20'
+      # nfs4 (`nfs` alone does not match it, the regex is fully anchored): must be ignored
+      - series: 'node_filesystem_avail_bytes{instance="a:9100", device="srv:/data", mountpoint="/data", fstype="nfs4"}'
+        values: '5x20'
+      - series: 'node_filesystem_size_bytes{instance="a:9100", device="srv:/data", mountpoint="/data", fstype="nfs4"}'
+        values: '100x20'
+      - series: 'node_filesystem_readonly{instance="a:9100", device="srv:/data", mountpoint="/data", fstype="nfs4"}'
+        values: '0x20'
+      # ext4 almost out of inodes: must alert
+      - series: 'node_filesystem_files_free{instance="a:9100", device="/dev/sda1", mountpoint="/", fstype="ext4"}'
+        values: '5x20'
+      - series: 'node_filesystem_files{instance="a:9100", device="/dev/sda1", mountpoint="/", fstype="ext4"}'
+        values: '100x20'
+      - series: 'node_filesystem_readonly{instance="a:9100", device="/dev/sda1", mountpoint="/", fstype="ext4"}'
+        values: '0x20'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: HostOutOfInodes
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              instance: "a:9100"
+              nodename: a
+              device: /dev/sda1
+              mountpoint: /
+              fstype: ext4
+            exp_annotations:
+              summary: Host out of inodes (instance a:9100)
+              description: "Disk is almost running out of available inodes (< 10% left)\n  VALUE = 0.05\n  LABELS = map[device:/dev/sda1 fstype:ext4 instance:a:9100 mountpoint:/ nodename:a]"
+      - eval_time: 10m
+        alertname: HostOutOfDiskSpace
+        exp_alerts: []

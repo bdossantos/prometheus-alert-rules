@@ -1,0 +1,50 @@
+rule_files:
+  - ../rules/smartd.yml
+
+evaluation_interval: 1m
+
+tests:
+  # Normalized value goes 100 -> 0 as the drive wears. The raw value is vendor
+  # specific: here an erase counter that starts at 0 on a new drive and grows.
+  - name: wear alerts use the normalized value, not the raw erase counter
+    interval: 1m
+    input_series:
+      # brand new drive: normalized 100, raw counter 0 (the raw <= 10 rule fired here)
+      - series: 'smartmon_media_wearout_indicator_value{instance="a:9100", disk="/dev/sda"}'
+        values: '100x20'
+      - series: 'smartmon_media_wearout_indicator_raw_value{instance="a:9100", disk="/dev/sda"}'
+        values: '0x20'
+      - series: 'smartmon_wear_leveling_count_value{instance="a:9100", disk="/dev/sda"}'
+        values: '100x20'
+      - series: 'smartmon_wear_leveling_count_raw_value{instance="a:9100", disk="/dev/sda"}'
+        values: '3x20'
+      # worn drive: normalized 8, raw counter large (the raw <= 10 rule never fired here)
+      - series: 'smartmon_media_wearout_indicator_value{instance="b:9100", disk="/dev/sdb"}'
+        values: '8x20'
+      - series: 'smartmon_media_wearout_indicator_raw_value{instance="b:9100", disk="/dev/sdb"}'
+        values: '4000x20'
+      - series: 'smartmon_wear_leveling_count_value{instance="b:9100", disk="/dev/sdb"}'
+        values: '8x20'
+      - series: 'smartmon_wear_leveling_count_raw_value{instance="b:9100", disk="/dev/sdb"}'
+        values: '4000x20'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: SmartDeviceMediaWearoutIndicator
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "b:9100"
+              disk: /dev/sdb
+            exp_annotations:
+              summary: "SSD media wearout indicator low (instance b:9100)"
+              description: "Device /dev/sdb media wearout indicator is at or below 10%. SSD may be nearing end of life.\n  VALUE = 8\n  LABELS = map[__name__:smartmon_media_wearout_indicator_value disk:/dev/sdb instance:b:9100]"
+      - eval_time: 10m
+        alertname: SmartDeviceWearLevelingCount
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "b:9100"
+              disk: /dev/sdb
+            exp_annotations:
+              summary: "SSD wear leveling count low (instance b:9100)"
+              description: "Device /dev/sdb wear leveling count is at or below 10. SSD may be nearing end of life.\n  VALUE = 8\n  LABELS = map[__name__:smartmon_wear_leveling_count_value disk:/dev/sdb instance:b:9100]"
