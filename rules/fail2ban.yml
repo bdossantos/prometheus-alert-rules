@@ -26,7 +26,7 @@ groups:
         # The textfile is rewritten by a cron job or a timer. If it stops, fail2ban_up keeps
         # its last value forever and Fail2banDown can never fire. Assumes a run at least
         # every 15 minutes, adjust the threshold to your schedule.
-        expr: ((time() - node_textfile_mtime_seconds{file=~".*fail2ban.*"}) > 3600) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        expr: ((time() - node_textfile_mtime_seconds{file=~"fail2ban.*"}) > 3600) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m
         labels:
           severity: warning
