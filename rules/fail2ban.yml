@@ -1,0 +1,46 @@
+---
+# fail2ban monitoring using the fail2ban.sh textfile collector.
+# See: textfile-collector/fail2ban.sh
+groups:
+  - name: fail2ban
+    rules:
+      - alert: Fail2banDown
+        expr: (fail2ban_up == 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: fail2ban down (instance {{ $labels.instance }})
+          description: "fail2ban is not running (fail2ban-client ping fails), the host is no longer protected against brute force attacks.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: Fail2banNoJails
+        # fail2ban_up is 1 but no per-jail metric is exported: the daemon runs without any
+        # jail (broken configuration, or all jails failed to start after a reload).
+        expr: (fail2ban_up == 1 unless on(instance) fail2ban_banned_ips) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: fail2ban has no jail (instance {{ $labels.instance }})
+          description: "fail2ban is running but no jail is active, nothing is being banned. Check the jail configuration.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: Fail2banMetricsStale
+        # The textfile is rewritten by a cron job or a timer. If it stops, fail2ban_up keeps
+        # its last value forever and Fail2banDown can never fire. Assumes a run at least
+        # every 15 minutes, adjust the threshold to your schedule.
+        expr: ((time() - node_textfile_mtime_seconds{file=~".*fail2ban.*"}) > 3600) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: fail2ban metrics stale (instance {{ $labels.instance }})
+          description: "The fail2ban textfile has not been updated for more than 1 hour. Check the fail2ban.sh cron job or timer.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: Fail2banHighBanRate
+        # Informational: fail2ban is doing its job, but a wave of bans means a brute force
+        # attempt, or a misconfigured client locking itself out. Tune the threshold to the
+        # exposure of your hosts.
+        expr: (sum by (instance, jail) (increase(fail2ban_total_bans[15m])) > 20) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: fail2ban high ban rate (instance {{ $labels.instance }})
+          description: "Jail {{ $labels.jail }} banned more than 20 IPs in the last 15 minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
