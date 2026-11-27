@@ -17,7 +17,7 @@ tests:
         alertname: PhpFpmMaxChildrenReached
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
               instance: "a:9253"
               job: php-fpm
             exp_annotations:
@@ -46,7 +46,7 @@ tests:
         alertname: "PhpFpmListenQueue>80%"
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
               instance: "c:9253"
               job: php-fpm
             exp_annotations:

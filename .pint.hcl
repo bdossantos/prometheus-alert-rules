@@ -17,7 +17,7 @@ rule {
     severity = "bug"
     required = true
     # `none` is reserved for the always-firing dead man's switch.
-    value    = "page|warning|info|none"
+    value    = "critical|warning|info|none"
   }
 
   annotation "summary" {

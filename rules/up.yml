@@ -6,7 +6,7 @@ groups:
         expr: up{app="kubernetes"} == 0
         for: 10m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Kubernetes API Server down (instance {{ $labels.instance }})
           description: "Kubernetes API Server ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -15,7 +15,7 @@ groups:
         expr: up{app="cadvisor"} == 0
         for: 15m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Cadvisor down (instance {{ $labels.instance }})
           description: "Cadvisor ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -24,7 +24,7 @@ groups:
         expr: up{app="kubelet"} == 0
         for: 10m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Kubelet down (instance {{ $labels.instance }})
           description: "Kubelet ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -34,7 +34,7 @@ groups:
         expr: up{app="kube-state-metrics"} == 0
         for: 10m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: KubeStateMetrics down (instance {{ $labels.instance }})
           description: "KubeStateMetrics ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -43,7 +43,7 @@ groups:
         expr: up{app="node-exporter"} == 0
         for: 10m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: NodeExporter down (instance {{ $labels.instance }})
           description: "NodeExporter ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -52,7 +52,7 @@ groups:
         expr: up{cluster_type="host", app!~"cadvisor|etcd|kubelet|kubernetes|master|node-exporter|worker"} == 0
         for: 10m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Target down (instance {{ $labels.instance }})
           description: "Target {{ $labels.namespace }}/{{ $labels.app }} ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -61,7 +61,7 @@ groups:
         expr: changes(up[30m]) > 5
         for: 5m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Target is flapping (instance {{ $labels.instance }})
           description: "Target {{ $labels.app }} ({{ $labels.instance }}) is flapping.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

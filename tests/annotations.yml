@@ -18,7 +18,7 @@ tests:
         alertname: NodeExporterDown
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
               app: node-exporter
               instance: "a:9100"
               job: node
@@ -38,7 +38,7 @@ tests:
         alertname: HaproxyPendingRequests
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
               backend: web
             exp_annotations:
               summary: HAProxy pending requests (backend web)
@@ -58,7 +58,7 @@ tests:
         alertname: VaultClusterHealth
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
             exp_annotations:
               summary: Vault cluster health
               description: "Vault cluster is not healthy: only 33.33% of the nodes are unsealed\n  VALUE = 0.3333333333333333\n  LABELS = map[]"

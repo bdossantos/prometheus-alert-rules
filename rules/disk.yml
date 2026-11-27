@@ -22,7 +22,7 @@ groups:
         expr: (node_filesystem_avail_bytes{fstype!~"fuse.*|tmpfs|cifs|nfs.*"} / node_filesystem_size_bytes < .10 and on (instance, device, mountpoint) node_filesystem_readonly == 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Host out of disk space (instance {{ $labels.instance }})"
           description: "Disk is almost full (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -30,7 +30,7 @@ groups:
         expr: (predict_linear(node_filesystem_avail_bytes{fstype!~"fuse.*|tmpfs|cifs|nfs.*"}[3h], 86400) <= 0 and node_filesystem_avail_bytes > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Host disk may fill in 24 hours (instance {{ $labels.instance }})"
           description: "Filesystem will likely run out of space within the next 24 hours.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -38,7 +38,7 @@ groups:
         expr: (node_filesystem_files_free{fstype!~"fuse.*|tmpfs|cifs|nfs.*"} / node_filesystem_files < .10 and ON (instance, device, mountpoint) node_filesystem_readonly == 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Host out of inodes (instance {{ $labels.instance }})"
           description: "Disk is almost running out of available inodes (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -54,7 +54,7 @@ groups:
         expr: (rate(node_disk_read_time_seconds_total[1m]) / rate(node_disk_reads_completed_total[1m]) > 0.1 and rate(node_disk_reads_completed_total[1m]) > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Host unusual disk read latency (instance {{ $labels.instance }})"
           description: "Disk latency is growing (read operations > 100ms)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -62,7 +62,7 @@ groups:
         expr: (rate(node_disk_write_time_seconds_total[1m]) / rate(node_disk_writes_completed_total[1m]) > 0.1 and rate(node_disk_writes_completed_total[1m]) > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Host unusual disk write latency (instance {{ $labels.instance }})"
           description: "Disk latency is growing (write operations > 100ms)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -70,7 +70,7 @@ groups:
         expr: (node_filesystem_device_error{fstype!~"fuse.*|tmpfs|cifs|nfs.*"} == 1) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Host filesystem device error (instance {{ $labels.instance }})"
           description: "Error stat-ing the {{ $labels.mountpoint }} filesystem\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

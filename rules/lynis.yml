@@ -15,7 +15,7 @@ groups:
         expr: (lynis_hardening_index < 40) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Lynis very low hardening index (instance {{ $labels.instance }})
           description: "Lynis hardening index is very low (< 40/100). Immediate security improvements are required.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

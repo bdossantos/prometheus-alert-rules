@@ -22,7 +22,7 @@ groups:
         expr: '((rate(node_network_receive_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m]) + rate(node_network_transmit_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m])) / node_network_speed_bytes{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"} > 0.8 < 10000) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 15m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Host Network Interface Saturated (instance {{ $labels.instance }})"
           description: "The network interface \"{{ $labels.device }}\" on \"{{ $labels.instance }}\" is getting overloaded.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -30,7 +30,7 @@ groups:
         expr: '(node_nf_conntrack_entries / node_nf_conntrack_entries_limit > 0.8) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 5m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Host conntrack limit (instance {{ $labels.instance }})
           description: "The number of conntrack is approaching limit\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

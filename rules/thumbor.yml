@@ -6,7 +6,7 @@ groups:
         expr: absent(thumbor_response_count_total)
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Thumbor down
           description: "Thumbor instance is down or unreachable\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -15,7 +15,7 @@ groups:
         expr: sum by (instance) (rate(thumbor_response_status_total{statuscode=~"5.."}[5m])) / sum by (instance) (rate(thumbor_response_status_total[5m])) > 0.05
         for: 5m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Thumbor high error rate (instance {{ $labels.instance }})
           description: "Thumbor is returning a high rate of 5xx errors (> 5%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

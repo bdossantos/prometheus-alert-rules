@@ -6,7 +6,7 @@ groups:
         expr: (elasticsearch_jvm_memory_used_bytes{area="heap"} / elasticsearch_jvm_memory_max_bytes{area="heap"}) * 100 > 90
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Elasticsearch Heap Usage Too High (instance {{ $labels.instance }})
           description: "The heap usage is over 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -25,7 +25,7 @@ groups:
         expr: elasticsearch_filesystem_data_available_bytes / elasticsearch_filesystem_data_size_bytes * 100 < 10
         for: 0m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Elasticsearch disk out of space (instance {{ $labels.instance }})
           description: "The disk usage is over 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -44,7 +44,7 @@ groups:
         expr: elasticsearch_cluster_health_status{color="red"} == 1
         for: 0m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Elasticsearch Cluster Red (instance {{ $labels.instance }})
           description: "Elastic Cluster Red status\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -62,7 +62,7 @@ groups:
         expr: elasticsearch_cluster_health_number_of_nodes < 3
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Elasticsearch Healthy Nodes (instance {{ $labels.instance }})
           description: "Missing node in Elasticsearch cluster\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -71,7 +71,7 @@ groups:
         expr: elasticsearch_cluster_health_number_of_data_nodes < 3
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Elasticsearch Healthy Data Nodes (instance {{ $labels.instance }})
           description: "Missing data node in Elasticsearch cluster\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -116,7 +116,7 @@ groups:
         expr: elasticsearch_cluster_health_unassigned_shards > 0
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Elasticsearch unassigned shards (instance {{ $labels.instance }})
           description: "Elasticsearch has unassigned shards\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

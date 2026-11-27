@@ -23,7 +23,7 @@ tests:
         alertname: LynisVeryLowHardeningIndex
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
               instance: "a:9100"
               nodename: a
             exp_annotations:
@@ -66,7 +66,7 @@ tests:
         alertname: ElasticsearchHeapUsageTooHigh
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
               instance: "es2:9114"
               area: heap
             exp_annotations:
@@ -98,7 +98,7 @@ tests:
         alertname: ElasticsearchDiskOutOfSpace
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
               instance: "es2:9114"
             exp_annotations:
               summary: Elasticsearch disk out of space (instance es2:9114)

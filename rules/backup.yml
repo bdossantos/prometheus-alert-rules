@@ -6,7 +6,7 @@ groups:
         expr: (restic_check_success == 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Backup check failed (instance {{ $labels.instance }})
           description: "Restic repository integrity check failed or did not complete successfully.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -14,7 +14,7 @@ groups:
         expr: ((time() - backup_last_run_timestamp_seconds) > 90000) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Backup not run recently (instance {{ $labels.instance }})
           description: "Backup has not run in more than 25 hours.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

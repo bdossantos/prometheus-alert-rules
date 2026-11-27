@@ -4,7 +4,7 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
-  - name: the dead man's switch always fires and is never routed as a page
+  - name: the dead man's switch always fires and is never routed as critical
     interval: 1m
     input_series:
       - series: 'up{job="node", instance="a:9100"}'
@@ -38,7 +38,7 @@ tests:
         alertname: PrometheusTargetMissing
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
               job: node
               instance: "b:9100"
             exp_annotations:
@@ -67,7 +67,7 @@ tests:
         alertname: PrometheusTargetMissingWithWarmupTime
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
               job: node
               instance: "a:9100"
             exp_annotations:

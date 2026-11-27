@@ -22,7 +22,7 @@ tests:
         alertname: NodeHasConstantOOMKills
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
               instance: "a:9100"
               nodename: a
             exp_annotations:

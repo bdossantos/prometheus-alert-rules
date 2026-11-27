@@ -6,7 +6,7 @@ groups:
         expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < .10) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Host out of memory (instance {{ $labels.instance }})
           description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -16,7 +16,7 @@ groups:
         expr: (increase(node_vmstat_oom_kill[1h]) > 3) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 10m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Node has constant OOM kills (instance {{ $labels.instance }})
           description: "Node {{ $labels.instance }} has had more than 3 OOM kills in the last hour.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

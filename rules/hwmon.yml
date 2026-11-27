@@ -14,7 +14,7 @@ groups:
         expr: '((node_hwmon_temp_crit_alarm_celsius == 1) or (node_hwmon_temp_alarm == 1)) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 0m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Host node overtemperature alarm (instance {{ $labels.instance }})
           description: "Physical node temperature alarm triggered\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
