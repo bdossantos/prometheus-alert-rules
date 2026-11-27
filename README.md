@@ -50,8 +50,9 @@ Each file in `rules/` targets a specific system or service. All alert names use 
 | `consul.yml` | Consul service healthchecks, missing master nodes, and unhealthy agents |
 | `cpu.yml` | High CPU load, underutilization, steal, I/O wait, and context switching |
 | `disk.yml` | Disk space, inodes, read/write rates, latency, and filesystem errors |
-| `docker.yml` | Container CPU, memory, volume usage, and throttle rate |
+| `docker.yml` | Container CPU, memory, inode usage, and throttle rate for standalone Docker (cAdvisor, containers identified by `name`) |
 | `elasticsearch.yml` | Heap usage, disk space, cluster health, shards, and indexing/query performance |
+| `fail2ban.yml` | fail2ban availability, missing jails, stale metrics, and ban-rate spikes |
 | `galera.yml` | MySQL Galera cluster size, replication state, and flow control |
 | `haproxy.yml` | HTTP error rates, connection errors, pending requests, and security blocks |
 | `hwmon.yml` | Physical component temperature and overtemperature alarms |
@@ -67,7 +68,7 @@ Each file in `rules/` targets a specific system or service. All alert names use 
 | `mysql.yml` | MySQL availability, replication lag, connections, and slow queries |
 | `network.yml` | Network throughput, interface saturation, conntrack, and errors |
 | `nomad.yml` | Nomad job failures, lost jobs, queued jobs, and blocked evaluations |
-| `nvme.yml` | NVMe drive temperature, wear, media errors, and power-on hours |
+| `nvme.yml` | NVMe drive temperature (warning above 60°C, critical above 70°C), wear, media errors, and power-on hours |
 | `php-fpm.yml` | PHP-FPM max children, listen queue, busy processes, and slow requests |
 | `pressure.yml` | Linux PSI (Pressure Stall Information) for CPU, memory, and I/O |
 | `prometheus-alerts.yml` | Prometheus and Alertmanager self-monitoring, target scraping, and TSDB health |
@@ -80,7 +81,7 @@ Each file in `rules/` targets a specific system or service. All alert names use 
 | `systemd.yml` | Systemd service crashes |
 | `thumbor.yml` | Thumbor availability, error rate, response time, and storage hit ratio |
 | `timezones.yml` | Sleep-peacefully timezone-based alert suppression windows |
-| `up.yml` | Core component availability (API server, Cadvisor, Kubelet, node exporter, etc.) |
+| `up.yml` | Core component availability (node exporter, Cadvisor, API server, Kubelet, etc.), selected by the `job` label |
 | `vault.yml` | HashiCorp Vault seal state, availability, and token management |
 
 ## Textfile Collector Scripts
