@@ -1,0 +1,47 @@
+rule_files:
+  - ../rules/blackbox.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: BlackboxProbeHttpFailure fires on an HTTP error, not when the probe failed without an answer
+    interval: 1m
+    input_series:
+      # a: the server answers 503
+      - series: 'probe_http_status_code{instance="https://a.example.com", job="blackbox"}'
+        values: '503x10'
+      - series: 'probe_success{instance="https://a.example.com", job="blackbox"}'
+        values: '0x10'
+      # b: connection refused, status code 0: BlackboxProbeFailed's job, not this one's
+      - series: 'probe_http_status_code{instance="https://b.example.com", job="blackbox"}'
+        values: '0x10'
+      - series: 'probe_success{instance="https://b.example.com", job="blackbox"}'
+        values: '0x10'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: BlackboxProbeHttpFailure
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "https://a.example.com"
+              job: blackbox
+            exp_annotations:
+              summary: Blackbox probe HTTP failure (instance https://a.example.com)
+              description: "HTTP status code is not 200-399\n  VALUE = 503\n  LABELS = map[__name__:probe_http_status_code instance:https://a.example.com job:blackbox]"
+      - eval_time: 5m
+        alertname: BlackboxProbeFailed
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: "https://a.example.com"
+              job: blackbox
+            exp_annotations:
+              summary: Blackbox probe failed (instance https://a.example.com)
+              description: "Probe failed\n  VALUE = 0\n  LABELS = map[__name__:probe_success instance:https://a.example.com job:blackbox]"
+          - exp_labels:
+              severity: critical
+              instance: "https://b.example.com"
+              job: blackbox
+            exp_annotations:
+              summary: Blackbox probe failed (instance https://b.example.com)
+              description: "Probe failed\n  VALUE = 0\n  LABELS = map[__name__:probe_success instance:https://b.example.com job:blackbox]"

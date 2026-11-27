@@ -1,6 +1,7 @@
 rule_files:
   - ../rules/lynis.yml
   - ../rules/elasticsearch.yml
+  - ../rules/nvme.yml
 
 evaluation_interval: 1m
 
@@ -103,3 +104,32 @@ tests:
             exp_annotations:
               summary: Elasticsearch disk out of space (instance es2:9114)
               description: "The disk usage is over 90%\n  VALUE = 5\n  LABELS = map[instance:es2:9114]"
+
+  - name: nvme temperature, only one tier fires
+    interval: 1m
+    input_series:
+      - series: 'nvme_temperature_celsius{instance="a:9100", device="nvme0"}'
+        values: '65x20'
+      - series: 'nvme_temperature_celsius{instance="b:9100", device="nvme0"}'
+        values: '75x20'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: NvmeHighTemperature
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "a:9100"
+              device: nvme0
+            exp_annotations:
+              summary: "NVMe SSD is hot (instance a:9100)"
+              description: "NVMe SSD temperature is between 60°C and 70°C\n  VALUE = 65\n  LABELS = map[__name__:nvme_temperature_celsius device:nvme0 instance:a:9100]"
+      - eval_time: 10m
+        alertname: NvmeOvertemperatureAlarm
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: "b:9100"
+              device: nvme0
+            exp_annotations:
+              summary: "NVMe SSD is too hot (instance b:9100)"
+              description: "NVMe SSD is running too hot (> 70°C)\n  VALUE = 75\n  LABELS = map[__name__:nvme_temperature_celsius device:nvme0 instance:b:9100]"

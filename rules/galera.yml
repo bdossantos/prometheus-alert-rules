@@ -87,7 +87,7 @@ groups:
         expr: (rate(mysql_global_status_wsrep_local_bf_aborts[5m]) > 0)
         for: 1m
         labels:
-          severity: critical
+          severity: warning
         annotations:
           summary: "Galera Cluster node on `{{ $labels.instance }}` have transactions that were aborted "
           description: "A Galera Cluster node on `{{ $labels.instance }}` has local transactions that were aborted by slave transactions while in execution."

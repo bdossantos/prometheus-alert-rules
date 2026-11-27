@@ -8,7 +8,7 @@ groups:
         expr: ((node_time_seconds - node_boot_time_seconds) < 300) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m
         labels:
-          severity: critical
+          severity: warning
         annotations:
           summary: Machine rebooted (instance {{ $labels.instance }})
           description: "Machine {{ $labels.instance }} rebooted less than 5 minutes ago.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

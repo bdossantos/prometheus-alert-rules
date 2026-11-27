@@ -30,7 +30,7 @@ tests:
         alertname: NodeRebooted
         exp_alerts:
           - exp_labels:
-              severity: critical
+              severity: warning
               instance: "a:9100"
               nodename: a
             exp_annotations:

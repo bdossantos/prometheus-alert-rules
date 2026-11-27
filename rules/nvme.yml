@@ -2,14 +2,23 @@
 groups:
   - name: nvme
     rules:
+      - alert: NvmeHighTemperature
+        # Same thresholds as the SMART alerts: warning from 60°C, critical above 70°C.
+        expr: nvme_temperature_celsius > 60 <= 70
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "NVMe SSD is hot (instance {{ $labels.instance }})"
+          description: "NVMe SSD temperature is between 60°C and 70°C\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: NvmeOvertemperatureAlarm
-        expr: nvme_temperature_celsius > 60
+        expr: nvme_temperature_celsius > 70
         for: 5m
         labels:
           severity: critical
         annotations:
           summary: "NVMe SSD is too hot (instance {{ $labels.instance }})"
-          description: "NVMe SSD is running too hot (degrees Celsius)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "NVMe SSD is running too hot (> 70°C)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: NvmePowerOnHours
         expr: nvme_power_on_hours_total > 43800
         for: 5m
