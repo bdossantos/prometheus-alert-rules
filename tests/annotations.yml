@@ -8,10 +8,12 @@ evaluation_interval: 1m
 # Annotation rendering: summaries and descriptions must only reference labels
 # that the expression actually keeps.
 tests:
-  - name: NodeExporterDown has a summary and uses the instance label
+  - name: up alerts select on the job label, TargetDown covers the jobs without a dedicated alert
     interval: 1m
     input_series:
-      - series: 'up{app="node-exporter", instance="a:9100", job="node"}'
+      - series: 'up{instance="a:9100", job="node"}'
+        values: '0x30'
+      - series: 'up{instance="r:9121", job="redis"}'
         values: '0x30'
     alert_rule_test:
       - eval_time: 20m
@@ -19,12 +21,21 @@ tests:
         exp_alerts:
           - exp_labels:
               severity: critical
-              app: node-exporter
               instance: "a:9100"
               job: node
             exp_annotations:
               summary: NodeExporter down (instance a:9100)
-              description: "NodeExporter (a:9100) is down.\n  VALUE = 0\n  LABELS = map[__name__:up app:node-exporter instance:a:9100 job:node]"
+              description: "NodeExporter (a:9100) is down.\n  VALUE = 0\n  LABELS = map[__name__:up instance:a:9100 job:node]"
+      - eval_time: 20m
+        alertname: TargetDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: "r:9121"
+              job: redis
+            exp_annotations:
+              summary: Target down (instance r:9121)
+              description: "Target redis (r:9121) is down.\n  VALUE = 0\n  LABELS = map[__name__:up instance:r:9121 job:redis]"
 
   - name: HaproxyPendingRequests names the backend (instance and fqdn are dropped by the sum)
     interval: 1m

@@ -1,0 +1,77 @@
+rule_files:
+  - ../rules/docker.yml
+
+evaluation_interval: 1m
+
+# Standalone Docker with cAdvisor: containers only have a `name` label.
+tests:
+  - name: CPU and throttle alerts work on standalone Docker, and ignore unlimited containers
+    interval: 1m
+    input_series:
+      # web: limited to 0.5 CPU (quota 50000 / period 100000), using 0.5 CPU, throttled 40%
+      - series: 'container_cpu_usage_seconds_total{instance="a:8080", name="web", id="/docker/web"}'
+        values: '0+30x30'
+      - series: 'container_spec_cpu_quota{instance="a:8080", name="web", id="/docker/web"}'
+        values: '50000x30'
+      - series: 'container_spec_cpu_period{instance="a:8080", name="web", id="/docker/web"}'
+        values: '100000x30'
+      - series: 'container_cpu_cfs_periods_total{instance="a:8080", name="web", id="/docker/web"}'
+        values: '0+100x30'
+      - series: 'container_cpu_cfs_throttled_periods_total{instance="a:8080", name="web", id="/docker/web"}'
+        values: '0+40x30'
+      # db: no CPU limit (quota 0), busy: must not alert (it would divide by zero)
+      - series: 'container_cpu_usage_seconds_total{instance="a:8080", name="db", id="/docker/db"}'
+        values: '0+120x30'
+      - series: 'container_spec_cpu_quota{instance="a:8080", name="db", id="/docker/db"}'
+        values: '0x30'
+      - series: 'container_spec_cpu_period{instance="a:8080", name="db", id="/docker/db"}'
+        values: '100000x30'
+      - series: 'container_cpu_cfs_periods_total{instance="a:8080", name="db", id="/docker/db"}'
+        values: '0x30'
+      - series: 'container_cpu_cfs_throttled_periods_total{instance="a:8080", name="db", id="/docker/db"}'
+        values: '0x30'
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: ContainerHighCpuUtilization
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "a:8080"
+              name: web
+            exp_annotations:
+              summary: Container High CPU utilization (container web on a:8080)
+              description: "Container web CPU utilization is above 80% of its CPU limit\n  VALUE = 100\n  LABELS = map[instance:a:8080 name:web]"
+      - eval_time: 15m
+        alertname: ContainerHighThrottleRate
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "a:8080"
+              name: web
+            exp_annotations:
+              summary: Container high throttle rate (container web on a:8080)
+              description: "Container web is being throttled\n  VALUE = 0.4\n  LABELS = map[instance:a:8080 name:web]"
+
+  - name: ContainerVolumeUsage only counts named containers
+    interval: 1m
+    input_series:
+      # named container: 90% of inodes used
+      - series: 'container_fs_inodes_free{instance="a:8080", name="web", device="/dev/sda1"}'
+        values: '10x10'
+      - series: 'container_fs_inodes_total{instance="a:8080", name="web", device="/dev/sda1"}'
+        values: '100x10'
+      # root cgroup (no name): its totals used to be added to the denominator only
+      - series: 'container_fs_inodes_free{instance="a:8080", id="/", device="/dev/sda1"}'
+        values: '100x10'
+      - series: 'container_fs_inodes_total{instance="a:8080", id="/", device="/dev/sda1"}'
+        values: '100x10'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: ContainerVolumeUsage
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "a:8080"
+            exp_annotations:
+              summary: Container Volume usage (instance a:8080)
+              description: "Container filesystem inode usage is above 80%\n  VALUE = 90\n  LABELS = map[instance:a:8080]"

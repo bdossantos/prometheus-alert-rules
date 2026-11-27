@@ -30,3 +30,37 @@ tests:
             exp_annotations:
               summary: JVM file descriptors exhaustion (instance app:9404)
               description: "JVM process is running out of file descriptors (> 90% used)\n  VALUE = 95\n  LABELS = map[instance:app:9404 job:app]"
+
+  - name: JvmDirectBufferPoolFillingUp compares direct memory with the max heap, not with its own capacity
+    interval: 1m
+    input_series:
+      # a: 950 of the 1000 bytes default limit (heap max, G1 Eden/Survivor report -1): fires
+      - series: 'jvm_buffer_pool_used_bytes{instance="a:9404", job="app", pool="direct"}'
+        values: '950x20'
+      - series: 'jvm_buffer_pool_capacity_bytes{instance="a:9404", job="app", pool="direct"}'
+        values: '950x20'
+      - series: 'jvm_memory_max_bytes{instance="a:9404", job="app", area="heap", id="G1 Old Gen"}'
+        values: '1000x20'
+      - series: 'jvm_memory_max_bytes{instance="a:9404", job="app", area="heap", id="G1 Eden Space"}'
+        values: '-1x20'
+      # b: used == capacity (always 100% for the old rule) but only 10% of the limit,
+      # plus a big mapped pool that the direct memory limit does not apply to
+      - series: 'jvm_buffer_pool_used_bytes{instance="b:9404", job="app", pool="direct"}'
+        values: '1000x20'
+      - series: 'jvm_buffer_pool_capacity_bytes{instance="b:9404", job="app", pool="direct"}'
+        values: '1000x20'
+      - series: 'jvm_buffer_pool_used_bytes{instance="b:9404", job="app", pool="mapped"}'
+        values: '50000x20'
+      - series: 'jvm_memory_max_bytes{instance="b:9404", job="app", area="heap", id="G1 Old Gen"}'
+        values: '10000x20'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: JvmDirectBufferPoolFillingUp
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "a:9404"
+              job: app
+            exp_annotations:
+              summary: JVM direct buffer pool filling up (instance a:9404)
+              description: "JVM direct buffer memory is above 90% of the default direct memory limit (the max heap)\n  VALUE = 95\n  LABELS = map[instance:a:9404 job:app]"

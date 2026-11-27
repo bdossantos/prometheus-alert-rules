@@ -59,13 +59,18 @@ groups:
           summary: JVM old gen GC frequency (instance {{ $labels.instance }})
           description: "Frequent old/major GC cycles, indicating memory pressure\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: JvmDirectBufferPoolFillingUp
-        expr: (jvm_buffer_pool_used_bytes / jvm_buffer_pool_capacity_bytes) * 100 > 90
+        # jvm_buffer_pool_used_bytes and jvm_buffer_pool_capacity_bytes are (nearly)
+        # equal, so used / capacity sits at ~100% and the alert was always firing.
+        # The JVM exposes no direct memory limit: compare with the default one,
+        # -XX:MaxDirectMemorySize, which is the max heap. If you set it explicitly,
+        # replace the denominator with that value. The mapped pool is not limited by it.
+        expr: (sum by (instance, job) (jvm_buffer_pool_used_bytes{pool="direct"}) / sum by (instance, job) (jvm_memory_max_bytes{area="heap"} > 0)) * 100 > 90
         for: 5m
         labels:
           severity: warning
         annotations:
           summary: JVM direct buffer pool filling up (instance {{ $labels.instance }})
-          description: "JVM direct buffer pool is filling up (> 90%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "JVM direct buffer memory is above 90% of the default direct memory limit (the max heap)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: JvmObjectsPendingFinalization
         expr: jvm_memory_objects_pending_finalization > 1000
         for: 5m

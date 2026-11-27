@@ -1,52 +1,58 @@
 ---
+# Standalone Docker, scraped with cAdvisor: containers are identified by the `name`
+# label (there is no `pod` / `container` label as with Kubernetes).
 groups:
   - name: docker
     rules:
       - alert: ContainerHighCpuUtilization
-        expr: (sum(rate(container_cpu_usage_seconds_total{container!=""}[5m])) by (pod, container) / sum(container_spec_cpu_quota{container!=""}/container_spec_cpu_period{container!=""}) by (pod, container) * 100) > 80
+        # Only containers with a CPU limit: an unlimited container has a quota of 0.
+        expr: (sum by (instance, name) (rate(container_cpu_usage_seconds_total{name!=""}[5m])) / sum by (instance, name) ((container_spec_cpu_quota{name!=""} > 0) / container_spec_cpu_period{name!=""}) * 100) > 80
         for: 2m
         labels:
           severity: warning
         annotations:
-          summary: Container High CPU utilization (pod {{ $labels.pod }}, container {{ $labels.container }})
-          description: "Container CPU utilization is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: Container High CPU utilization (container {{ $labels.name }} on {{ $labels.instance }})
+          description: "Container {{ $labels.name }} CPU utilization is above 80% of its CPU limit\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: ContainerHighMemoryUsage
         expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name) * 100) > 80
         for: 2m
         labels:
           severity: warning
         annotations:
-          summary: Container High Memory usage (instance {{ $labels.instance }})
-          description: "Container Memory usage is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: Container High Memory usage (container {{ $labels.name }} on {{ $labels.instance }})
+          description: "Container {{ $labels.name }} memory usage is above 80% of its memory limit\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: ContainerVolumeUsage
-        expr: (1 - (sum(container_fs_inodes_free{name!=""}) BY (instance) / sum(container_fs_inodes_total) BY (instance))) * 100 > 80
+        # Inodes, not bytes: the byte usage of the host filesystems is covered by
+        # HostOutOfDiskSpace. Numerator and denominator are both limited to named
+        # containers (the denominator used to include every cgroup).
+        expr: (1 - (sum by (instance) (container_fs_inodes_free{name!=""}) / sum by (instance) (container_fs_inodes_total{name!=""}))) * 100 > 80
         for: 2m
         labels:
           severity: warning
         annotations:
           summary: Container Volume usage (instance {{ $labels.instance }})
-          description: "Container Volume usage is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Container filesystem inode usage is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: ContainerHighThrottleRate
-        expr: sum(increase(container_cpu_cfs_throttled_periods_total{container!=""}[5m])) by (container, pod, namespace) / sum(increase(container_cpu_cfs_periods_total[5m])) by (container, pod, namespace) > ( 25 / 100 )
+        expr: sum by (instance, name) (increase(container_cpu_cfs_throttled_periods_total{name!=""}[5m])) / sum by (instance, name) (increase(container_cpu_cfs_periods_total{name!=""}[5m])) > ( 25 / 100 )
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: Container high throttle rate (pod {{ $labels.pod }}, container {{ $labels.container }})
-          description: "Container is being throttled\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: Container high throttle rate (container {{ $labels.name }} on {{ $labels.instance }})
+          description: "Container {{ $labels.name }} is being throttled\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: ContainerLowCpuUtilization
-        expr: (sum(rate(container_cpu_usage_seconds_total{container!=""}[5m])) by (pod, container) / sum(container_spec_cpu_quota{container!=""}/container_spec_cpu_period{container!=""}) by (pod, container) * 100) < 20
+        expr: (sum by (instance, name) (rate(container_cpu_usage_seconds_total{name!=""}[5m])) / sum by (instance, name) ((container_spec_cpu_quota{name!=""} > 0) / container_spec_cpu_period{name!=""}) * 100) < 20
         for: 7d
         labels:
           severity: info
         annotations:
-          summary: Container Low CPU utilization (pod {{ $labels.pod }}, container {{ $labels.container }})
-          description: "Container CPU utilization is under 20% for 1 week. Consider reducing the allocated CPU.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: Container Low CPU utilization (container {{ $labels.name }} on {{ $labels.instance }})
+          description: "Container {{ $labels.name }} CPU utilization is under 20% for 1 week. Consider reducing the allocated CPU.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: ContainerLowMemoryUsage
         expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name) * 100) < 20
         for: 7d
         labels:
           severity: info
         annotations:
-          summary: Container Low Memory usage (instance {{ $labels.instance }})
-          description: "Container Memory usage is under 20% for 1 week. Consider reducing the allocated memory.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: Container Low Memory usage (container {{ $labels.name }} on {{ $labels.instance }})
+          description: "Container {{ $labels.name }} memory usage is under 20% for 1 week. Consider reducing the allocated memory.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

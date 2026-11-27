@@ -13,7 +13,7 @@ groups:
 
       - alert: RedisMissingMaster
         expr: (count(redis_instance_info{role="master"}) or vector(0)) < 1
-        for: 0m
+        for: 2m
         labels:
           severity: critical
         annotations:
@@ -31,7 +31,7 @@ groups:
 
       - alert: RedisDisconnectedSlaves
         expr: count without (instance, job) (redis_connected_slaves) - sum without (instance, job) (redis_connected_slaves) - 1 > 0
-        for: 0m
+        for: 2m
         labels:
           severity: critical
         annotations:
