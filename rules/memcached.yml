@@ -6,7 +6,7 @@ groups:
         expr: memcached_up == 0
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Memcached down (instance {{ $labels.instance }})
           description: "Memcached instance is down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -33,7 +33,7 @@ groups:
         expr: memcached_current_bytes / memcached_limit_bytes * 100 > 90
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Memcached out of memory (instance {{ $labels.instance }})
           description: "Memcached is running out of memory (> 90% used)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -42,7 +42,7 @@ groups:
         expr: memcached_current_connections / memcached_max_connections * 100 > 90
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Memcached max connections reached (instance {{ $labels.instance }})
           description: "Memcached is running out of connections (> 90% used)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -60,7 +60,7 @@ groups:
         expr: increase(memcached_connections_listener_disabled_total[5m]) > 0
         for: 0m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Memcached listener disabled (instance {{ $labels.instance }})
           description: "Memcached connection listener has been disabled due to hitting connection limits\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

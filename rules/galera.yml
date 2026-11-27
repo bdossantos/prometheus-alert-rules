@@ -6,7 +6,7 @@ groups:
         expr: (mysql_global_status_wsrep_cluster_size < 3)
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Galera Cluster on `{{ $labels.instance }}` < 3 nodes"
           description: "Galera Cluster on `{{ $labels.instance }}` had less than 3 nodes ({{ $value }}) during the last 1m"
@@ -24,7 +24,7 @@ groups:
         expr: (mysql_global_status_wsrep_cluster_status != 1)
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Galera Cluster node on `{{ $labels.instance }}` not operational"
           description: "A Galera Cluster node on `{{ $labels.instance }}` had not been operational during the last 1m. It may occur in cases of multiple membership changes that result in a loss of quorum or in cases of split-brain situations"
@@ -33,7 +33,7 @@ groups:
         expr: (mysql_global_status_wsrep_ready != 1)
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Galera cluster node on `{{ $labels.instance }}` not ready"
           description: "A Galera cluster node on `{{ $labels.instance }}` has not been ready during the last 1m"
@@ -42,7 +42,7 @@ groups:
         expr: (mysql_global_status_wsrep_connected != 1)
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Galera cluster node on `{{ $labels.instance }}` not connected"
           description: "A Galera cluster node on `{{ $labels.instance }}` has not been connected to the cluster during the last 1m"
@@ -51,7 +51,7 @@ groups:
         expr: (mysql_global_status_wsrep_local_state != 4 AND mysql_global_variables_wsrep_desync == 0)
         for: 10m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Galera cluster node on `{{ $labels.instance }}` out of sync"
           description: "A Galera cluster node on `{{ $labels.instance }}` has not been in sync ({{ $value }} != 4) during the last 10m"
@@ -60,7 +60,7 @@ groups:
         expr: (mysql_global_status_wsrep_local_state == 2 AND mysql_global_status_wsrep_local_recv_queue > 1)
         for: 10m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Galera xtradb cluster donor node on `{{ $labels.instance }}` falling behind"
           description: "A Galera cluster node on `{{ $labels.instance }}` is a donor (hotbackup) and has been falling behind (queue size {{ $value }}) during the last 10m"
@@ -69,7 +69,7 @@ groups:
         expr: (mysql_global_status_wsrep_flow_control_paused == 1)
         for: 5m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Galera Cluster node on `{{ $labels.instance }}` paused due to Flow Control"
           description: "A Galera Cluster node on `{{ $labels.instance }}` has been paused due to flow control during the last 5m"
@@ -78,7 +78,7 @@ groups:
         expr: (rate(mysql_global_status_wsrep_local_cert_failures[5m]) > 1)
         for: 5m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Galera Cluster node on `{{ $labels.instance }}` have cert failures"
           description: "A Galera Cluster node on `{{ $labels.instance }}` has cert failures during the last 5m"
@@ -87,7 +87,7 @@ groups:
         expr: (rate(mysql_global_status_wsrep_local_bf_aborts[5m]) > 0)
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Galera Cluster node on `{{ $labels.instance }}` have transactions that were aborted "
           description: "A Galera Cluster node on `{{ $labels.instance }}` has local transactions that were aborted by slave transactions while in execution."
@@ -96,7 +96,7 @@ groups:
         expr: (mysql_global_status_wsrep_flow_control_paused > 0.2 and mysql_global_status_wsrep_flow_control_paused < 1)
         for: 5m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Galera Cluster node on `{{ $labels.instance }}` flow control pause too high"
           description: "A Galera Cluster node on `{{ $labels.instance }}` had a flow control pause too high ({{ $value }}) during the last 5m"
@@ -105,7 +105,7 @@ groups:
         expr: (mysql_global_status_wsrep_local_send_queue_avg > 2)
         for: 30m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Galera Cluster on `{{ $labels.instance }}` send queue length too high"
           description: "Galera Cluster on `{{ $labels.instance }}` had a local send queue length too high ({{ $value }}) during the last 30m. It may indicate that replication throttling or network throughput issues"

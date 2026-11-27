@@ -6,7 +6,7 @@ groups:
         expr: vault_core_unsealed == 0
         for: 0m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Vault sealed (instance {{ $labels.instance }})
           description: "Vault instance is sealed on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -14,7 +14,7 @@ groups:
         expr: up{job="vault"} == 0
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Vault down (instance {{ $labels.instance }})
           description: "Vault instance is down on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -38,7 +38,7 @@ groups:
         expr: sum(vault_core_unsealed) / count(vault_core_unsealed) <= 0.5
         for: 0m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Vault cluster health
           description: "Vault cluster is not healthy: only {{ $value | humanizePercentage }} of the nodes are unsealed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

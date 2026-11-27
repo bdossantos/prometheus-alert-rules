@@ -6,7 +6,7 @@ evaluation_interval: 1m
 tests:
   # node_time_seconds advances 60s per step. Host "a" reboots just before step 10
   # (boot time jumps to 1700000590). Host "b" only has its boot time stepped back
-  # by 2s (clock jitter), it did not reboot: rate() on the gauge used to page here.
+  # by 2s (clock jitter), it did not reboot: rate() on the gauge used to alert here.
   - name: NodeRebooted fires for 5 minutes after a real reboot, not on clock jitter
     interval: 1m
     input_series:
@@ -30,7 +30,7 @@ tests:
         alertname: NodeRebooted
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
               instance: "a:9100"
               nodename: a
             exp_annotations:
@@ -50,7 +50,7 @@ tests:
         alertname: NodeRebootsTooOften
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
               instance: "a:9100"
               job: node
             exp_annotations:

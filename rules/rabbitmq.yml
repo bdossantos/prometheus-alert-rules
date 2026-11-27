@@ -6,7 +6,7 @@ groups:
         expr: sum(rabbitmq_build_info) < 3
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: RabbitMQ node down
           description: "Less than 3 nodes running in RabbitMQ cluster\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -14,7 +14,7 @@ groups:
         expr: erlang_vm_dist_node_state < 3
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: RabbitMQ node not distributed (instance {{ $labels.instance }})
           description: "Distribution link state is not 'up'\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -54,7 +54,7 @@ groups:
         expr: sum(rabbitmq_queue_messages_unacked) BY (queue) > 1000
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: RabbitMQ too many unack messages (queue {{ $labels.queue }})
           description: "Too many unacknowledged messages on queue {{ $labels.queue }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -78,7 +78,7 @@ groups:
         expr: increase(rabbitmq_channel_messages_unroutable_returned_total[1m]) > 0 or increase(rabbitmq_channel_messages_unroutable_dropped_total[1m]) > 0
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: RabbitMQ unroutable messages (instance {{ $labels.instance }})
           description: "A queue has unroutable messages\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

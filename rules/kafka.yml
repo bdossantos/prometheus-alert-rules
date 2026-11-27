@@ -6,7 +6,7 @@ groups:
         expr: min(kafka_topic_partition_in_sync_replica) by (topic) < 3
         for: 0m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Kafka topics replicas (topic {{ $labels.topic }})
           description: "Kafka topic {{ $labels.topic }} has fewer than 3 in-sync replicas\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -15,7 +15,7 @@ groups:
         expr: sum(kafka_consumergroup_lag) by (consumergroup) > 10000
         for: 1m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Kafka consumer group lag (consumergroup {{ $labels.consumergroup }})
           description: "Kafka consumer group {{ $labels.consumergroup }} is lagging behind ({{ $value }} messages)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

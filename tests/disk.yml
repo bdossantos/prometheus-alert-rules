@@ -35,7 +35,7 @@ tests:
         alertname: HostOutOfInodes
         exp_alerts:
           - exp_labels:
-              severity: page
+              severity: critical
               instance: "a:9100"
               nodename: a
               device: /dev/sda1

@@ -6,7 +6,7 @@ groups:
         expr: changes(nomad_nomad_job_summary_failed[5m]) > 0 and nomad_nomad_job_summary_failed > 0
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Nomad job failed (instance {{ $labels.instance }})
           description: "Nomad job failed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -14,7 +14,7 @@ groups:
         expr: changes(nomad_nomad_job_summary_lost[5m]) > 0 and nomad_nomad_job_summary_lost > 0
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Nomad job lost (instance {{ $labels.instance }})
           description: "Nomad job lost\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -22,7 +22,7 @@ groups:
         expr: nomad_nomad_job_summary_queued > 0
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Nomad job queued (instance {{ $labels.instance }})
           description: "Nomad job queued\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -30,7 +30,7 @@ groups:
         expr: changes(nomad_nomad_blocked_evals_total_blocked[5m]) > 0 and nomad_nomad_blocked_evals_total_blocked > 0
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: Nomad blocked evaluation (instance {{ $labels.instance }})
           description: "Nomad blocked evaluation\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

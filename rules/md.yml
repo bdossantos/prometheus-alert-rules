@@ -6,7 +6,7 @@ groups:
         expr: (node_md_state{state="inactive"} > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 5m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Host RAID array got inactive (instance {{ $labels.instance }})"
           description: "RAID array {{ $labels.device }} is in degraded state due to one or more disks failures. Number of spare drives is insufficient to fix issue automatically.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -15,7 +15,7 @@ groups:
         expr: (node_md_disks{state="failed"} > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Host software RAID disk failure (instance {{ $labels.instance }})"
           description: "MD RAID array {{ $labels.device }} on {{ $labels.instance }} needs attention.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -23,7 +23,7 @@ groups:
         expr: ((node_md_disks_required - on(device, instance) node_md_disks{state="active"}) > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m
         labels:
-          severity: page
+          severity: critical
         annotations:
           summary: "Host software RAID insufficient drives (instance {{ $labels.instance }})"
           description: "MD RAID array {{ $labels.device }} on {{ $labels.instance }} has insufficient drives remaining.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
