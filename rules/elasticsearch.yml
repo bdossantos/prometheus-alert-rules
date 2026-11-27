@@ -24,7 +24,7 @@ groups:
         expr: elasticsearch_filesystem_data_available_bytes / elasticsearch_filesystem_data_size_bytes * 100 < 10
         for: 0m
         labels:
-          severity: critical
+          severity: page
         annotations:
           summary: Elasticsearch disk out of space (instance {{ $labels.instance }})
           description: "The disk usage is over 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -114,7 +114,7 @@ groups:
         expr: elasticsearch_cluster_health_unassigned_shards > 0
         for: 2m
         labels:
-          severity: critical
+          severity: page
         annotations:
           summary: Elasticsearch unassigned shards (instance {{ $labels.instance }})
           description: "Elasticsearch has unassigned shards\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

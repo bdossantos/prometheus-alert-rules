@@ -6,7 +6,7 @@ groups:
         expr: absent(thumbor_response_count_total)
         for: 1m
         labels:
-          severity: critical
+          severity: page
         annotations:
           summary: Thumbor down
           description: "Thumbor instance is down or unreachable\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
