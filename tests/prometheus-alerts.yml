@@ -1,0 +1,46 @@
+rule_files:
+  - ../rules/prometheus-alerts.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: the dead man's switch always fires and is never routed as a page
+    interval: 1m
+    input_series:
+      - series: 'up{job="node", instance="a:9100"}'
+        values: '1x10'
+    alert_rule_test:
+      - eval_time: 0m
+        alertname: PrometheusAlertmanagerE2eDeadManSwitch
+        exp_alerts:
+          - exp_labels:
+              severity: none
+            exp_annotations:
+              summary: "Prometheus AlertManager E2E dead man switch (instance )"
+              description: "Prometheus DeadManSwitch is an always-firing alert. It's used as an end-to-end test of Prometheus through the Alertmanager.\n  VALUE = 1\n  LABELS = map[]"
+
+  - name: PrometheusTargetMissing tolerates a single failed scrape but pages a target that stays down
+    interval: 1m
+    input_series:
+      # a: one failed scrape, then recovers
+      - series: 'up{job="node", instance="a:9100"}'
+        values: '1 0 1x18'
+      # b: down for good while the rest of the job is up
+      - series: 'up{job="node", instance="b:9100"}'
+        values: '0x20'
+      - series: 'up{job="node", instance="c:9100"}'
+        values: '1x20'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: PrometheusTargetMissing
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: PrometheusTargetMissing
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              job: node
+              instance: "b:9100"
+            exp_annotations:
+              summary: "Prometheus target missing (instance b:9100)"
+              description: "A Prometheus target has disappeared. An exporter might be crashed.\n  VALUE = 0\n  LABELS = map[__name__:up instance:b:9100 job:node]"

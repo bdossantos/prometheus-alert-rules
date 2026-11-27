@@ -6,7 +6,7 @@ groups:
         expr: redis_up == 0
         for: 1m
         labels:
-          severity: critical
+          severity: page
         annotations:
           summary: Redis down (instance {{ $labels.instance }})
           description: "Redis instance is down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -15,7 +15,7 @@ groups:
         expr: (count(redis_instance_info{role="master"}) or vector(0)) < 1
         for: 0m
         labels:
-          severity: critical
+          severity: page
         annotations:
           summary: Redis missing master (instance {{ $labels.instance }})
           description: "Redis cluster has no node marked as master.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -24,7 +24,7 @@ groups:
         expr: count(redis_instance_info{role="master"}) > 1
         for: 1m
         labels:
-          severity: critical
+          severity: page
         annotations:
           summary: Redis too many masters (instance {{ $labels.instance }})
           description: "Redis cluster has too many nodes marked as master.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -33,7 +33,7 @@ groups:
         expr: count without (instance, job) (redis_connected_slaves) - sum without (instance, job) (redis_connected_slaves) - 1 > 0
         for: 0m
         labels:
-          severity: critical
+          severity: page
         annotations:
           summary: Redis disconnected slaves (instance {{ $labels.instance }})
           description: "Redis not replicating for all slaves. Consider reviewing the redis replication status.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -60,7 +60,7 @@ groups:
         expr: time() - redis_rdb_last_save_timestamp_seconds > 60 * 60 * 48
         for: 0m
         labels:
-          severity: critical
+          severity: page
         annotations:
           summary: Redis missing backup (instance {{ $labels.instance }})
           description: "Redis has not been backed up for 48 hours\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
