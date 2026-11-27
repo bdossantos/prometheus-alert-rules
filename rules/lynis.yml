@@ -3,13 +3,14 @@ groups:
   - name: lynis
     rules:
       - alert: LynisLowHardeningIndex
-        expr: (lynis_hardening_index < 60) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        # Exclusive range: below 40 only LynisVeryLowHardeningIndex fires.
+        expr: (lynis_hardening_index >= 40 < 60) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m
         labels:
           severity: warning
         annotations:
           summary: Lynis low hardening index (instance {{ $labels.instance }})
-          description: "Lynis hardening index is low (< 60/100). Review security recommendations.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Lynis hardening index is low (40-59/100). Review security recommendations.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: LynisVeryLowHardeningIndex
         expr: (lynis_hardening_index < 40) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m

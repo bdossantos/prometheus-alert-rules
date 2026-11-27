@@ -8,8 +8,8 @@ groups:
         labels:
           severity: page
         annotations:
-          summary: "NVME SSD is too hot (instance {{ $labels.instance }})"
-          description: "NVME SSD is running too hot (celcius temperature)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: "NVMe SSD is too hot (instance {{ $labels.instance }})"
+          description: "NVMe SSD is running too hot (degrees Celsius)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: NvmePowerOnHours
         expr: nvme_power_on_hours_total > 43800
         for: 5m
@@ -24,7 +24,7 @@ groups:
         labels:
           severity: page
         annotations:
-          summary: "NVME indicate critical warnings for the state of the controller (instance {{ $labels.instance }})"
+          summary: "NVMe indicates critical warnings for the state of the controller (instance {{ $labels.instance }})"
           description: "Critical warnings may result in an asynchronous event notification to the host. Bits in this field represent the current associated state and are not persistent.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: NvmePercentageUsedRatio
         expr: nvme_percentage_used_ratio > 0.9

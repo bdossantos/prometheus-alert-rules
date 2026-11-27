@@ -1,6 +1,6 @@
 ---
 groups:
-  - name: Pressure
+  - name: pressure
     rules:
       - alert: CpuPressure
         expr: (avg by (instance) (rate(node_pressure_cpu_waiting_seconds_total[1m])) * 100) > 60

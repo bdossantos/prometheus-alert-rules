@@ -12,13 +12,14 @@ groups:
           description: "The heap usage is over 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: ElasticsearchHeapUsageWarning
-        expr: (elasticsearch_jvm_memory_used_bytes{area="heap"} / elasticsearch_jvm_memory_max_bytes{area="heap"}) * 100 > 80
+        # Exclusive range: above 90% only ElasticsearchHeapUsageTooHigh fires.
+        expr: (elasticsearch_jvm_memory_used_bytes{area="heap"} / elasticsearch_jvm_memory_max_bytes{area="heap"}) * 100 > 80 <= 90
         for: 2m
         labels:
           severity: warning
         annotations:
           summary: Elasticsearch Heap Usage warning (instance {{ $labels.instance }})
-          description: "The heap usage is over 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "The heap usage is between 80% and 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: ElasticsearchDiskOutOfSpace
         expr: elasticsearch_filesystem_data_available_bytes / elasticsearch_filesystem_data_size_bytes * 100 < 10
@@ -30,13 +31,14 @@ groups:
           description: "The disk usage is over 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: ElasticsearchDiskSpaceLow
-        expr: elasticsearch_filesystem_data_available_bytes / elasticsearch_filesystem_data_size_bytes * 100 < 20
+        # Exclusive range: below 10% only ElasticsearchDiskOutOfSpace fires.
+        expr: elasticsearch_filesystem_data_available_bytes / elasticsearch_filesystem_data_size_bytes * 100 < 20 >= 10
         for: 2m
         labels:
           severity: warning
         annotations:
           summary: Elasticsearch disk space low (instance {{ $labels.instance }})
-          description: "The disk usage is over 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "The disk usage is between 80% and 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: ElasticsearchClusterRed
         expr: elasticsearch_cluster_health_status{color="red"} == 1

@@ -1,6 +1,6 @@
 ---
 groups:
-  - name: hardware
+  - name: hwmon
     rules:
       - alert: HostPhysicalComponentTooHot
         expr: (node_hwmon_temp_celsius > node_hwmon_temp_max_celsius) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}

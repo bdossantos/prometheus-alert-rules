@@ -1,6 +1,6 @@
 ---
 groups:
-  - name: CPU
+  - name: cpu
     rules:
       - alert: HostHighCpuLoad
         expr: (1 - (avg without (cpu) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) > .80) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
