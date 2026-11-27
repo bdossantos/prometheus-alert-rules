@@ -7,7 +7,7 @@ SHELL := /usr/bin/env bash
 export PATH
 
 # Pinned by digest, bump together with the tag.
-PROMETHEUS_IMAGE := prom/prometheus:v3.10.0@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
+PROMETHEUS_IMAGE := prom/prometheus:v3.16.0@sha256:e04987641b57704f408e31f6373ba4138ecf27cb4a165d24aabb6c38fddd0f06
 PINT_IMAGE := ghcr.io/cloudflare/pint:0.90.0@sha256:deb5fafba283f9c0cd3882de5936b8aacba03734c3d39088b5d0d16c2f1fa5cc
 
 help:
