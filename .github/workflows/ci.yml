@@ -12,23 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # ratchet:actions/cache@v6.1.0
-        id: cache-shellcheck
-        with:
-          path: bin/shellcheck
-          key: ${{ runner.os }}-shellcheck
-          restore-keys: |
-            ${{ runner.os }}-shellcheck
-      - name: Setup bin directories
+      # shellcheck is preinstalled on ubuntu-latest runners. A previous step that
+      # downloaded and cached a copy under ./bin was never used: `export PATH` does
+      # not persist across steps and the Makefile does not look in ./bin.
+      - name: Run tests, lint and shellcheck
         run: |
-          mkdir -p "$(pwd)/bin"
-          export PATH=$(pwd)/bin:$HOME/.local/bin:$PATH
-      - name: Get shellcheck binary
-        if: steps.cache-shellcheck.outputs.cache-hit != 'true'
-        run: |
-          wget -qO- https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.x86_64.tar.xz | tar -xJv
-          mv "shellcheck-stable/shellcheck" "$(pwd)/bin/shellcheck"
-          chmod +x "$(pwd)/bin/shellcheck"
-      - name: Run test and shellcheck
-        run: |
-          timeout 10m make test shellcheck
+          timeout 10m make test lint shellcheck
