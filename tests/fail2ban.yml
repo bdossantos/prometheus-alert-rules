@@ -1,0 +1,124 @@
+rule_files:
+  - ../rules/fail2ban.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: Fail2banDown fires when fail2ban-client ping fails for 5 minutes
+    interval: 1m
+    input_series:
+      # a: fail2ban down (the script only emits fail2ban_up 0)
+      - series: 'fail2ban_up{instance="a:9100", job="node"}'
+        values: '0x20'
+      - series: 'node_uname_info{instance="a:9100", nodename="a"}'
+        values: '1x20'
+      # b: up
+      - series: 'fail2ban_up{instance="b:9100", job="node"}'
+        values: '1x20'
+      - series: 'node_uname_info{instance="b:9100", nodename="b"}'
+        values: '1x20'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: Fail2banDown
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: Fail2banDown
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "a:9100"
+              job: node
+              nodename: a
+            exp_annotations:
+              summary: fail2ban down (instance a:9100)
+              description: "fail2ban is not running (fail2ban-client ping fails), the host is no longer protected against brute force attacks.\n  VALUE = 0\n  LABELS = map[instance:a:9100 job:node nodename:a]"
+
+  - name: Fail2banNoJails fires when fail2ban is up but exports no jail
+    interval: 1m
+    input_series:
+      # a: up with a jail
+      - series: 'fail2ban_up{instance="a:9100", job="node"}'
+        values: '1x30'
+      - series: 'fail2ban_banned_ips{instance="a:9100", job="node", jail="sshd"}'
+        values: '2x30'
+      - series: 'node_uname_info{instance="a:9100", nodename="a"}'
+        values: '1x30'
+      # b: up, no jail
+      - series: 'fail2ban_up{instance="b:9100", job="node"}'
+        values: '1x30'
+      - series: 'node_uname_info{instance="b:9100", nodename="b"}'
+        values: '1x30'
+      # c: down, covered by Fail2banDown, not by this alert
+      - series: 'fail2ban_up{instance="c:9100", job="node"}'
+        values: '0x30'
+      - series: 'node_uname_info{instance="c:9100", nodename="c"}'
+        values: '1x30'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: Fail2banNoJails
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: Fail2banNoJails
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "b:9100"
+              job: node
+              nodename: b
+            exp_annotations:
+              summary: fail2ban has no jail (instance b:9100)
+              description: "fail2ban is running but no jail is active, nothing is being banned. Check the jail configuration.\n  VALUE = 1\n  LABELS = map[instance:b:9100 job:node nodename:b]"
+
+  # In a test, time() is the evaluation time since the epoch: a textfile refreshed
+  # every minute has an mtime equal to it (0+60 per step), a stuck one stays at 0.
+  - name: Fail2banMetricsStale fires when the textfile stops being refreshed
+    interval: 1m
+    input_series:
+      - series: 'node_textfile_mtime_seconds{instance="a:9100", job="node", file="fail2ban.prom"}'
+        values: '0x120'
+      - series: 'node_uname_info{instance="a:9100", nodename="a"}'
+        values: '1x120'
+      - series: 'node_textfile_mtime_seconds{instance="b:9100", job="node", file="fail2ban.prom"}'
+        values: '0+60x120'
+      - series: 'node_uname_info{instance="b:9100", nodename="b"}'
+        values: '1x120'
+      # another textfile that is stale must not matter
+      - series: 'node_textfile_mtime_seconds{instance="b:9100", job="node", file="smartmon.prom"}'
+        values: '0x120'
+    alert_rule_test:
+      - eval_time: 90m
+        alertname: Fail2banMetricsStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "a:9100"
+              job: node
+              file: fail2ban.prom
+              nodename: a
+            exp_annotations:
+              summary: fail2ban metrics stale (instance a:9100)
+              description: "The fail2ban textfile has not been updated for more than 1 hour. Check the fail2ban.sh cron job or timer.\n  VALUE = 5400\n  LABELS = map[file:fail2ban.prom instance:a:9100 job:node nodename:a]"
+
+  - name: Fail2banHighBanRate fires for a jail banning more than 20 IPs in 15 minutes
+    interval: 1m
+    input_series:
+      # sshd: 3 bans per minute = 45 per 15 minutes
+      - series: 'fail2ban_total_bans{instance="a:9100", job="node", jail="sshd"}'
+        values: '0+3x60'
+      # nginx: a handful of bans
+      - series: 'fail2ban_total_bans{instance="a:9100", job="node", jail="nginx"}'
+        values: '0x30 5x30'
+      - series: 'node_uname_info{instance="a:9100", nodename="a"}'
+        values: '1x60'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: Fail2banHighBanRate
+        exp_alerts:
+          - exp_labels:
+              severity: info
+              instance: "a:9100"
+              jail: sshd
+              nodename: a
+            exp_annotations:
+              summary: fail2ban high ban rate (instance a:9100)
+              description: "Jail sshd banned more than 20 IPs in the last 15 minutes.\n  VALUE = 45\n  LABELS = map[instance:a:9100 jail:sshd nodename:a]"
