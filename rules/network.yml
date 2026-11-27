@@ -49,7 +49,7 @@ groups:
           severity: warning
         annotations:
           summary: Host Network Transmit Errors (instance {{ $labels.instance }})
-          description: "Host {{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf \"%.0f\" $value }} transmit errors in the last two minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Host {{ $labels.instance }} interface {{ $labels.device }} has a transmit error ratio of {{ $value | humanizePercentage }} over the last two minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostNetworkReceiveErrors
         expr: '(rate(node_network_receive_errs_total[2m]) / rate(node_network_receive_packets_total[2m]) > 0.01) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}'
         for: 2m
@@ -57,4 +57,4 @@ groups:
           severity: warning
         annotations:
           summary: Host Network Receive Errors (instance {{ $labels.instance }})
-          description: "Host {{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf \"%.0f\" $value }} receive errors in the last two minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Host {{ $labels.instance }} interface {{ $labels.device }} has a receive error ratio of {{ $value | humanizePercentage }} over the last two minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

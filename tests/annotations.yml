@@ -1,0 +1,64 @@
+rule_files:
+  - ../rules/up.yml
+  - ../rules/haproxy.yml
+  - ../rules/vault.yml
+
+evaluation_interval: 1m
+
+# Annotation rendering: summaries and descriptions must only reference labels
+# that the expression actually keeps.
+tests:
+  - name: NodeExporterDown has a summary and uses the instance label
+    interval: 1m
+    input_series:
+      - series: 'up{app="node-exporter", instance="a:9100", job="node"}'
+        values: '0x30'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: NodeExporterDown
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              app: node-exporter
+              instance: "a:9100"
+              job: node
+            exp_annotations:
+              summary: NodeExporter down (instance a:9100)
+              description: "NodeExporter (a:9100) is down.\n  VALUE = 0\n  LABELS = map[__name__:up app:node-exporter instance:a:9100 job:node]"
+
+  - name: HaproxyPendingRequests names the backend (instance and fqdn are dropped by the sum)
+    interval: 1m
+    input_series:
+      - series: 'haproxy_backend_current_queue{instance="h1:8404", backend="web", fqdn="web.example.com"}'
+        values: '2x10'
+      - series: 'haproxy_backend_current_queue{instance="h2:8404", backend="web", fqdn="web.example.com"}'
+        values: '1x10'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: HaproxyPendingRequests
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              backend: web
+            exp_annotations:
+              summary: HAProxy pending requests (backend web)
+              description: "Some HAProxy requests are pending on web backend\n  VALUE = 3\n  LABELS = map[backend:web]"
+
+  - name: VaultClusterHealth prints a percentage for a 0-1 ratio
+    interval: 1m
+    input_series:
+      - series: 'vault_core_unsealed{instance="v1:8200"}'
+        values: '1x10'
+      - series: 'vault_core_unsealed{instance="v2:8200"}'
+        values: '0x10'
+      - series: 'vault_core_unsealed{instance="v3:8200"}'
+        values: '0x10'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: VaultClusterHealth
+        exp_alerts:
+          - exp_labels:
+              severity: page
+            exp_annotations:
+              summary: Vault cluster health
+              description: "Vault cluster is not healthy: only 33.33% of the nodes are unsealed\n  VALUE = 0.3333333333333333\n  LABELS = map[]"

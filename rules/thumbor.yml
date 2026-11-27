@@ -8,7 +8,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: Thumbor down (instance {{ $labels.instance }})
+          summary: Thumbor down
           description: "Thumbor instance is down or unreachable\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: ThumborHighErrorRate

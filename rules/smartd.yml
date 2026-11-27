@@ -88,7 +88,9 @@ groups:
           summary: "Disk reported uncorrectable errors (instance {{ $labels.instance }})"
           description: "Device {{ $labels.disk }} has reported {{ $value }} uncorrectable errors\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: SmartDeviceMediaWearoutIndicator
-        expr: smartmon_media_wearout_indicator_raw_value <= 10
+        # Use the normalized value (100 -> 0 as the drive wears). The raw value is
+        # vendor specific (often an erase counter, 0 on a new drive).
+        expr: smartmon_media_wearout_indicator_value <= 10
         for: 5m
         labels:
           severity: warning
@@ -96,7 +98,8 @@ groups:
           summary: "SSD media wearout indicator low (instance {{ $labels.instance }})"
           description: "Device {{ $labels.disk }} media wearout indicator is at or below 10%. SSD may be nearing end of life.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: SmartDeviceWearLevelingCount
-        expr: smartmon_wear_leveling_count_raw_value <= 10
+        # Normalized value, see SmartDeviceMediaWearoutIndicator.
+        expr: smartmon_wear_leveling_count_value <= 10
         for: 5m
         labels:
           severity: warning

@@ -7,7 +7,8 @@ groups:
         labels:
           severity: page
         annotations:
-          description: Kubernetes API Server ({{ $labels.instance }}) is down.
+          summary: Kubernetes API Server down (instance {{ $labels.instance }})
+          description: "Kubernetes API Server ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: CadvisorDown
         expr: up{app="cadvisor"} == 0
@@ -15,7 +16,8 @@ groups:
         labels:
           severity: page
         annotations:
-          description: Cadvisor ({{ $labels.ip }}) is down.
+          summary: Cadvisor down (instance {{ $labels.instance }})
+          description: "Cadvisor ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: KubeletDown
         expr: up{app="kubelet"} == 0
@@ -23,7 +25,8 @@ groups:
         labels:
           severity: page
         annotations:
-          description: Kubelet ({{ $labels.ip }}) is down.
+          summary: Kubelet down (instance {{ $labels.instance }})
+          description: "Kubelet ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
           opsrecipe: https://github.com/giantswarm/ops-recipes/blob/master/020-kubelet-is-down.md
 
       - alert: KubeStateMetricsDown
@@ -32,7 +35,8 @@ groups:
         labels:
           severity: page
         annotations:
-          description: KubeStateMetrics ({{ $labels.instance }}) is down.
+          summary: KubeStateMetrics down (instance {{ $labels.instance }})
+          description: "KubeStateMetrics ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: NodeExporterDown
         expr: up{app="node-exporter"} == 0
@@ -40,7 +44,8 @@ groups:
         labels:
           severity: page
         annotations:
-          description: NodeExporter ({{ $labels.ip }}) is down.
+          summary: NodeExporter down (instance {{ $labels.instance }})
+          description: "NodeExporter ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: TargetDown
         expr: up{cluster_type="host", app!~"cadvisor|etcd|kubelet|kubernetes|master|node-exporter|worker"} == 0
@@ -48,7 +53,8 @@ groups:
         labels:
           severity: page
         annotations:
-          description: Target {{ $labels.namespace }}/{{ $labels.app }} ({{ $labels.instance }}) is down.
+          summary: Target down (instance {{ $labels.instance }})
+          description: "Target {{ $labels.namespace }}/{{ $labels.app }} ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: TargetIsFlapping
         expr: changes(up[30m]) > 5
@@ -56,4 +62,5 @@ groups:
         labels:
           severity: page
         annotations:
-          description: Target {{ $labels.app }} ({{ $labels.instance }}) is flapping.
+          summary: Target is flapping (instance {{ $labels.instance }})
+          description: "Target {{ $labels.app }} ({{ $labels.instance }}) is flapping.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

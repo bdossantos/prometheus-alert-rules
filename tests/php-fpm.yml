@@ -1,0 +1,54 @@
+rule_files:
+  - ../rules/php-fpm.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: PhpFpmMaxChildrenReached fires on a sustained counter increase, not on a flat counter
+    interval: 1m
+    input_series:
+      # +1 per minute: the old `rate(...) > 1` (events per second) never matched this
+      - series: 'phpfpm_max_children_reached{instance="a:9253", job="php-fpm", pool="www"}'
+        values: '0+1x40'
+      - series: 'phpfpm_max_children_reached{instance="b:9253", job="php-fpm", pool="www"}'
+        values: '10x40'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: PhpFpmMaxChildrenReached
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              instance: "a:9253"
+              job: php-fpm
+            exp_annotations:
+              summary: Number of child processes have been exceeded (instance a:9253)
+              description: "php-fpm process limit has been reached\n  VALUE = 5\n  LABELS = map[instance:a:9253 job:php-fpm]"
+
+  - name: PhpFpmListenQueue>80% is evaluated per instance, not summed across the job
+    interval: 1m
+    input_series:
+      # two instances at 45%: summing the ratios (old rule) gave 0.9 and fired
+      - series: 'phpfpm_listen_queue{instance="a:9253", job="php-fpm", pool="www"}'
+        values: '45x30'
+      - series: 'phpfpm_listen_queue_length{instance="a:9253", job="php-fpm", pool="www"}'
+        values: '100x30'
+      - series: 'phpfpm_listen_queue{instance="b:9253", job="php-fpm", pool="www"}'
+        values: '45x30'
+      - series: 'phpfpm_listen_queue_length{instance="b:9253", job="php-fpm", pool="www"}'
+        values: '100x30'
+      # one instance really above 80%
+      - series: 'phpfpm_listen_queue{instance="c:9253", job="php-fpm", pool="www"}'
+        values: '90x30'
+      - series: 'phpfpm_listen_queue_length{instance="c:9253", job="php-fpm", pool="www"}'
+        values: '100x30'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: "PhpFpmListenQueue>80%"
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              instance: "c:9253"
+              job: php-fpm
+            exp_annotations:
+              summary: "php-fpm listen queue > 80% (instance c:9253)"
+              description: "Listen queue reached 80% of limit - 90%\n  VALUE = 0.9\n  LABELS = map[instance:c:9253 job:php-fpm]"

@@ -1,0 +1,58 @@
+rule_files:
+  - ../rules/reboot.yml
+
+evaluation_interval: 1m
+
+tests:
+  # node_time_seconds advances 60s per step. Host "a" reboots just before step 10
+  # (boot time jumps to 1700000590). Host "b" only has its boot time stepped back
+  # by 2s (clock jitter), it did not reboot: rate() on the gauge used to page here.
+  - name: NodeRebooted fires for 5 minutes after a real reboot, not on clock jitter
+    interval: 1m
+    input_series:
+      - series: 'node_time_seconds{instance="a:9100"}'
+        values: '1700000000+60x30'
+      - series: 'node_boot_time_seconds{instance="a:9100"}'
+        values: '1699999000x9 1700000590x21'
+      - series: 'node_uname_info{instance="a:9100", nodename="a"}'
+        values: '1x30'
+      - series: 'node_time_seconds{instance="b:9100"}'
+        values: '1700000000+60x30'
+      - series: 'node_boot_time_seconds{instance="b:9100"}'
+        values: '1699999000x4 1699998998x26'
+      - series: 'node_uname_info{instance="b:9100", nodename="b"}'
+        values: '1x30'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: NodeRebooted
+        exp_alerts: []
+      - eval_time: 12m
+        alertname: NodeRebooted
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              instance: "a:9100"
+              nodename: a
+            exp_annotations:
+              summary: Machine rebooted (instance a:9100)
+              description: "Machine a:9100 rebooted less than 5 minutes ago.\n  VALUE = 130\n  LABELS = map[instance:a:9100 nodename:a]"
+      - eval_time: 20m
+        alertname: NodeRebooted
+        exp_alerts: []
+
+  - name: NodeRebootsTooOften fires after two reboots in a day
+    interval: 1m
+    input_series:
+      - series: 'node_boot_time_seconds{instance="a:9100", job="node"}'
+        values: '1000x10 2000x10 3000x10'
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: NodeRebootsTooOften
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              instance: "a:9100"
+              job: node
+            exp_annotations:
+              summary: Node reboots too often (instance a:9100)
+              description: "Machine a:9100 reboots too often (2 is more than 1 times per 1d)\n  VALUE = 2\n  LABELS = map[instance:a:9100 job:node]"

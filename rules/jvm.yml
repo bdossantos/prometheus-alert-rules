@@ -74,7 +74,8 @@ groups:
           summary: JVM objects pending finalization (instance {{ $labels.instance }})
           description: "JVM has objects pending finalization, potential memory leak\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: JvmFileDescriptorsExhaustion
-        expr: (process_open_fds / process_max_fds) * 100 > 90
+        # process_* metrics are exposed by every exporter: restrict to JVM targets.
+        expr: ((process_open_fds / process_max_fds) * 100 > 90) and on (instance, job) jvm_info
         for: 5m
         labels:
           severity: warning

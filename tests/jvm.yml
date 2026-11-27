@@ -1,0 +1,32 @@
+rule_files:
+  - ../rules/jvm.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: JvmFileDescriptorsExhaustion only applies to JVM targets
+    interval: 1m
+    input_series:
+      # a JVM at 95% of its file descriptors
+      - series: 'process_open_fds{instance="app:9404", job="app"}'
+        values: '95x20'
+      - series: 'process_max_fds{instance="app:9404", job="app"}'
+        values: '100x20'
+      - series: 'jvm_info{instance="app:9404", job="app", version="21"}'
+        values: '1x20'
+      # a node_exporter at 95%: not a JVM, the old rule fired for it too
+      - series: 'process_open_fds{instance="a:9100", job="node"}'
+        values: '95x20'
+      - series: 'process_max_fds{instance="a:9100", job="node"}'
+        values: '100x20'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: JvmFileDescriptorsExhaustion
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "app:9404"
+              job: app
+            exp_annotations:
+              summary: JVM file descriptors exhaustion (instance app:9404)
+              description: "JVM process is running out of file descriptors (> 90% used)\n  VALUE = 95\n  LABELS = map[instance:app:9404 job:app]"

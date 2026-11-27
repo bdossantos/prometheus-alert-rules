@@ -15,15 +15,16 @@ groups:
         labels:
           severity: page
         annotations:
-          description: "Vault instance is down on ({{ $labels.ip }})"
+          summary: Vault down (instance {{ $labels.instance }})
+          description: "Vault instance is down on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: VaultTooManyPendingTokens
         expr: avg(vault_token_create_count - vault_token_store_count) > 0
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: Vault too many pending tokens (instance {{ $labels.instance }})
-          description: "Too many pending tokens {{ $labels.instance }}: {{ $value | printf \"%.2f\"}}%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: Vault too many pending tokens
+          description: "Too many pending tokens: {{ $value | printf \"%.2f\" }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: VaultTooManyInfinityTokens
         expr: vault_token_count_by_ttl{creation_ttl="+Inf"} > 3
         for: 5m
@@ -31,12 +32,12 @@ groups:
           severity: warning
         annotations:
           summary: Vault too many infinity tokens (instance {{ $labels.instance }})
-          description: "Too many infinity tokens {{ $labels.instance }}: {{ $value | printf \"%.2f\"}}%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Too many infinity tokens on {{ $labels.instance }}: {{ $value | printf \"%.0f\" }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: VaultClusterHealth
         expr: sum(vault_core_unsealed) / count(vault_core_unsealed) <= 0.5
         for: 0m
         labels:
           severity: page
         annotations:
-          summary: Vault cluster health (instance {{ $labels.instance }})
-          description: "Vault cluster is not healthy {{ $labels.instance }}: {{ $value | printf \"%.2f\"}}%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: Vault cluster health
+          description: "Vault cluster is not healthy: only {{ $value | humanizePercentage }} of the nodes are unsealed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

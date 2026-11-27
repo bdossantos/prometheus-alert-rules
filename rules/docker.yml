@@ -8,7 +8,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: Container High CPU utilization (instance {{ $labels.instance }})
+          summary: Container High CPU utilization (pod {{ $labels.pod }}, container {{ $labels.container }})
           description: "Container CPU utilization is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: ContainerHighMemoryUsage
         expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name) * 100) > 80
@@ -32,7 +32,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: Container high throttle rate (instance {{ $labels.instance }})
+          summary: Container high throttle rate (pod {{ $labels.pod }}, container {{ $labels.container }})
           description: "Container is being throttled\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: ContainerLowCpuUtilization
         expr: (sum(rate(container_cpu_usage_seconds_total{container!=""}[5m])) by (pod, container) / sum(container_spec_cpu_quota{container!=""}/container_spec_cpu_period{container!=""}) by (pod, container) * 100) < 20
@@ -40,7 +40,7 @@ groups:
         labels:
           severity: info
         annotations:
-          summary: Container Low CPU utilization (instance {{ $labels.instance }})
+          summary: Container Low CPU utilization (pod {{ $labels.pod }}, container {{ $labels.container }})
           description: "Container CPU utilization is under 20% for 1 week. Consider reducing the allocated CPU.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: ContainerLowMemoryUsage
         expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name) * 100) < 20

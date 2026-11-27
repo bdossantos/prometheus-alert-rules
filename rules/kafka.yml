@@ -7,8 +7,8 @@ groups:
         labels:
           severity: page
         annotations:
-          summary: Kafka topics replicas (instance {{ $labels.instance }})
-          description: "Kafka topic in-sync partition\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          summary: Kafka topics replicas (topic {{ $labels.topic }})
+          description: "Kafka topic {{ $labels.topic }} has fewer than 3 in-sync replicas\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: KafkaConsumerGroupLag
         expr: sum(kafka_consumergroup_lag) by (consumergroup) > 10000
@@ -16,7 +16,7 @@ groups:
         labels:
           severity: page
         annotations:
-          summary: Kafka consumer group lag (instance {{ $labels.instance }})
+          summary: Kafka consumer group lag (consumergroup {{ $labels.consumergroup }})
           description: "Kafka consumer group {{ $labels.consumergroup }} is lagging behind ({{ $value }} messages)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: KafkaTopicOffsetDecreased

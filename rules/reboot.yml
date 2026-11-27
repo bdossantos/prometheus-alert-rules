@@ -2,13 +2,15 @@ groups:
   - name: reboot
     rules:
       - alert: NodeRebooted
-        expr: rate(node_boot_time_seconds[5m]) > 0
+        # node_boot_time_seconds is a gauge: rate() would treat a clock step as a
+        # counter reset. Use the uptime, computed from the node's own clock.
+        expr: ((node_time_seconds - node_boot_time_seconds) < 300) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 0m
         labels:
           severity: page
         annotations:
           summary: Machine rebooted (instance {{ $labels.instance }})
-          description: Machine ({{ $labels.instance }}) just rebooted.
+          description: "Machine {{ $labels.instance }} rebooted less than 5 minutes ago.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: NodeRebootsTooOften
         expr: changes(node_boot_time_seconds{job="node"}[1d]) > 1
@@ -16,5 +18,5 @@ groups:
         labels:
           severity: page
         annotations:
-          summary: Node rebooots too often
-          description: "Machine {{ $labels.instance }} reboots too often ({{ $value }} is more than 1 times per 1d)"
+          summary: Node reboots too often (instance {{ $labels.instance }})
+          description: "Machine {{ $labels.instance }} reboots too often ({{ $value }} is more than 1 times per 1d)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
