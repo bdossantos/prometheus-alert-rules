@@ -17,7 +17,7 @@ groups:
         labels:
           severity: page
         annotations:
-          summary: Redis missing master (instance {{ $labels.instance }})
+          summary: Redis missing master
           description: "Redis cluster has no node marked as master.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: RedisTooManyMasters
@@ -26,7 +26,7 @@ groups:
         labels:
           severity: page
         annotations:
-          summary: Redis too many masters (instance {{ $labels.instance }})
+          summary: Redis too many masters
           description: "Redis cluster has too many nodes marked as master.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: RedisDisconnectedSlaves
@@ -35,7 +35,7 @@ groups:
         labels:
           severity: page
         annotations:
-          summary: Redis disconnected slaves (instance {{ $labels.instance }})
+          summary: Redis disconnected slaves
           description: "Redis not replicating for all slaves. Consider reviewing the redis replication status.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: RedisReplicationBroken

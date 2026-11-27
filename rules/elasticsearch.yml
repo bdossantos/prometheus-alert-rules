@@ -154,7 +154,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: Elasticsearch High Indexing Rate (instance {{ $labels.instance }})
+          summary: Elasticsearch High Indexing Rate
           description: "The indexing rate on Elasticsearch cluster is higher than the threshold.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: ElasticsearchHighQueryRate
@@ -163,7 +163,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: Elasticsearch High Query Rate (instance {{ $labels.instance }})
+          summary: Elasticsearch High Query Rate
           description: "The query rate on Elasticsearch cluster is higher than the threshold.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: ElasticsearchHighQueryLatency
