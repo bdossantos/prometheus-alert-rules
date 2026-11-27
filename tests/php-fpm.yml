@@ -24,7 +24,7 @@ tests:
               summary: Number of child processes have been exceeded (instance a:9253)
               description: "php-fpm process limit has been reached\n  VALUE = 5\n  LABELS = map[instance:a:9253 job:php-fpm]"
 
-  - name: PhpFpmListenQueue>80% is evaluated per instance, not summed across the job
+  - name: PhpFpmListenQueueHigh is evaluated per instance, not summed across the job
     interval: 1m
     input_series:
       # two instances at 45%: summing the ratios (old rule) gave 0.9 and fired
@@ -43,7 +43,7 @@ tests:
         values: '100x30'
     alert_rule_test:
       - eval_time: 20m
-        alertname: "PhpFpmListenQueue>80%"
+        alertname: PhpFpmListenQueueHigh
         exp_alerts:
           - exp_labels:
               severity: critical

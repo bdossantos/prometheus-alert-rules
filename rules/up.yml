@@ -1,9 +1,11 @@
 ---
+# Targets are selected with the standard `job` label. The Kubernetes ones only
+# fire if you scrape those jobs, adjust the job names to your scrape config.
 groups:
   - name: up
     rules:
       - alert: APIServerDown
-        expr: up{app="kubernetes"} == 0
+        expr: up{job=~"apiserver|kubernetes-apiservers"} == 0
         for: 10m
         labels:
           severity: critical
@@ -12,7 +14,7 @@ groups:
           description: "Kubernetes API Server ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: CadvisorDown
-        expr: up{app="cadvisor"} == 0
+        expr: up{job="cadvisor"} == 0
         for: 15m
         labels:
           severity: critical
@@ -21,17 +23,16 @@ groups:
           description: "Cadvisor ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: KubeletDown
-        expr: up{app="kubelet"} == 0
+        expr: up{job="kubelet"} == 0
         for: 10m
         labels:
           severity: critical
         annotations:
           summary: Kubelet down (instance {{ $labels.instance }})
           description: "Kubelet ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-          opsrecipe: https://github.com/giantswarm/ops-recipes/blob/master/020-kubelet-is-down.md
 
       - alert: KubeStateMetricsDown
-        expr: up{app="kube-state-metrics"} == 0
+        expr: up{job="kube-state-metrics"} == 0
         for: 10m
         labels:
           severity: critical
@@ -40,7 +41,7 @@ groups:
           description: "KubeStateMetrics ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: NodeExporterDown
-        expr: up{app="node-exporter"} == 0
+        expr: up{job=~"node|node[-_]exporter"} == 0
         for: 10m
         labels:
           severity: critical
@@ -49,13 +50,14 @@ groups:
           description: "NodeExporter ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: TargetDown
-        expr: up{cluster_type="host", app!~"cadvisor|etcd|kubelet|kubernetes|master|node-exporter|worker"} == 0
+        # Everything not covered by a dedicated alert above.
+        expr: up{job!~"node|node[-_]exporter|cadvisor|kubelet|kube-state-metrics|apiserver|kubernetes-apiservers"} == 0
         for: 10m
         labels:
           severity: critical
         annotations:
           summary: Target down (instance {{ $labels.instance }})
-          description: "Target {{ $labels.namespace }}/{{ $labels.app }} ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Target {{ $labels.job }} ({{ $labels.instance }}) is down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: TargetIsFlapping
         expr: changes(up[30m]) > 5
@@ -64,4 +66,4 @@ groups:
           severity: critical
         annotations:
           summary: Target is flapping (instance {{ $labels.instance }})
-          description: "Target {{ $labels.app }} ({{ $labels.instance }}) is flapping.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Target {{ $labels.job }} ({{ $labels.instance }}) is flapping.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

@@ -1,0 +1,35 @@
+rule_files:
+  - ../rules/redis.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: RedisMissingMaster ignores a one-minute failover blip
+    interval: 1m
+    input_series:
+      # the master disappears for one minute (stale marker) then comes back
+      - series: 'redis_instance_info{instance="r1:9121", role="master"}'
+        values: '1x3 stale 1x16'
+    alert_rule_test:
+      # 4m is the minute without a master (stale marker): pending, must not fire yet (for: 0m fired here)
+      - eval_time: 4m
+        alertname: RedisMissingMaster
+        exp_alerts: []
+      - eval_time: 8m
+        alertname: RedisMissingMaster
+        exp_alerts: []
+
+  - name: RedisMissingMaster fires when there is still no master after 2 minutes
+    interval: 1m
+    input_series:
+      - series: 'redis_instance_info{instance="r1:9121", role="master"}'
+        values: '1x2 stale stale stale stale stale stale stale stale stale stale'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: RedisMissingMaster
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              summary: Redis missing master
+              description: "Redis cluster has no node marked as master.\n  VALUE = 0\n  LABELS = map[]"
