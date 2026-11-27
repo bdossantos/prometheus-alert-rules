@@ -27,10 +27,12 @@ groups:
           summary: Blackbox slow probe (instance {{ $labels.instance }})
           description: "Blackbox probe took more than 1s to complete\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: BlackboxProbeHttpFailure
-        expr: probe_http_status_code <= 199 OR probe_http_status_code >= 400
+        # A status code of 0 means the probe failed before getting any HTTP answer:
+        # BlackboxProbeFailed already reports that, do not raise a second alert for it.
+        expr: probe_http_status_code > 0 and (probe_http_status_code <= 199 or probe_http_status_code >= 400)
         for: 1m
         labels:
-          severity: critical
+          severity: warning
         annotations:
           summary: Blackbox probe HTTP failure (instance {{ $labels.instance }})
           description: "HTTP status code is not 200-399\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -38,7 +40,7 @@ groups:
         expr: 3 <= round((last_over_time(probe_ssl_earliest_cert_expiry[10m]) - time()) / 86400, 0.1) < 20
         for: 0m
         labels:
-          severity: critical
+          severity: warning
         annotations:
           summary: Blackbox SSL certificate will expire soon (instance {{ $labels.instance }})
           description: "SSL certificate expires in less than 20 days\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

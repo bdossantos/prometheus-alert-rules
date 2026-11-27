@@ -63,7 +63,7 @@ groups:
         expr: changes(up[30m]) > 5
         for: 5m
         labels:
-          severity: critical
+          severity: warning
         annotations:
           summary: Target is flapping (instance {{ $labels.instance }})
           description: "Target {{ $labels.job }} ({{ $labels.instance }}) is flapping.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

@@ -1,0 +1,55 @@
+rule_files:
+  - ../rules/smartd.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: SMART temperature tiers are exclusive
+    interval: 1m
+    input_series:
+      - series: 'smartmon_temperature_celsius_raw_value{instance="a:9100", disk="/dev/sda"}'
+        values: '65x20'
+      - series: 'smartmon_temperature_celsius_raw_value{instance="b:9100", disk="/dev/sdb"}'
+        values: '75x20'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: SmartDeviceHighTemperature
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "a:9100"
+              disk: /dev/sda
+            exp_annotations:
+              summary: "Disk temperature high (instance a:9100)"
+              description: "Device /dev/sda temperature is between 60°C and 70°C\n  VALUE = 65°C\n  LABELS = map[__name__:smartmon_temperature_celsius_raw_value disk:/dev/sda instance:a:9100]"
+      - eval_time: 10m
+        alertname: SmartDeviceCriticalTemperature
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: "b:9100"
+              disk: /dev/sdb
+            exp_annotations:
+              summary: "Disk temperature critical (instance b:9100)"
+              description: "Device /dev/sdb temperature is critically high (> 70°C)\n  VALUE = 75°C\n  LABELS = map[__name__:smartmon_temperature_celsius_raw_value disk:/dev/sdb instance:b:9100]"
+
+  - name: SmartDeviceCommandTimeoutIncreasing fires on growth, not on a non-zero value
+    interval: 1m
+    input_series:
+      # a: counter that grows by 3 at minute 31
+      - series: 'smartmon_command_timeout_raw_value{instance="a:9100", disk="/dev/sda"}'
+        values: '0x30 3x90'
+      # b: non-zero but flat since boot
+      - series: 'smartmon_command_timeout_raw_value{instance="b:9100", disk="/dev/sdb"}'
+        values: '12x120'
+    alert_rule_test:
+      - eval_time: 50m
+        alertname: SmartDeviceCommandTimeoutIncreasing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: "a:9100"
+              disk: /dev/sda
+            exp_annotations:
+              summary: "SMART command timeouts increasing (instance a:9100)"
+              description: "Device /dev/sda command timeout counter increased by 3 in the last hour. See https://www.backblaze.com/blog/what-smart-stats-indicate-hard-drive-failures/\n  VALUE = 3.0300000000000002\n  LABELS = map[disk:/dev/sda instance:a:9100]"

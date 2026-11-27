@@ -30,7 +30,7 @@ groups:
         expr: (predict_linear(node_filesystem_avail_bytes{fstype!~"fuse.*|tmpfs|cifs|nfs.*"}[3h], 86400) <= 0 and node_filesystem_avail_bytes > 0) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 2m
         labels:
-          severity: critical
+          severity: warning
         annotations:
           summary: "Host disk may fill in 24 hours (instance {{ $labels.instance }})"
           description: "Filesystem will likely run out of space within the next 24 hours.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

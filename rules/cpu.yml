@@ -28,9 +28,9 @@ groups:
           description: "CPU steal is > 10%. A noisy neighbor is killing VM performances or a spot instance may be out of credit.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostCpuHighIowait
         expr: (avg without (cpu) (rate(node_cpu_seconds_total{mode="iowait"}[5m])) > .10) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
-        for: 0m
+        for: 5m
         labels:
-          severity: critical
+          severity: warning
         annotations:
           summary: Host CPU high iowait (instance {{ $labels.instance }})
           description: "CPU iowait > 10%. Your CPU is idling waiting for storage to respond.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

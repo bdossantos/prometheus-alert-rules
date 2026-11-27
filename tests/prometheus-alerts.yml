@@ -19,7 +19,7 @@ tests:
               summary: "Prometheus AlertManager E2E dead man switch"
               description: "Prometheus DeadManSwitch is an always-firing alert. It's used as an end-to-end test of Prometheus through the Alertmanager.\n  VALUE = 1\n  LABELS = map[]"
 
-  - name: PrometheusTargetMissing tolerates a single failed scrape but pages a target that stays down
+  - name: ExporterDown tolerates a single failed scrape but alerts on a target that stays down
     interval: 1m
     input_series:
       # a: one failed scrape, then recovers
@@ -32,44 +32,36 @@ tests:
         values: '1x20'
     alert_rule_test:
       - eval_time: 3m
-        alertname: PrometheusTargetMissing
+        alertname: ExporterDown
         exp_alerts: []
       - eval_time: 10m
-        alertname: PrometheusTargetMissing
+        alertname: ExporterDown
         exp_alerts:
           - exp_labels:
-              severity: critical
+              severity: warning
               job: node
               instance: "b:9100"
             exp_annotations:
-              summary: "Prometheus target missing (instance b:9100)"
-              description: "A Prometheus target has disappeared. An exporter might be crashed.\n  VALUE = 0\n  LABELS = map[__name__:up instance:b:9100 job:node]"
+              summary: "Exporter down (instance b:9100)"
+              description: "Prometheus exporter down\n  VALUE = 0\n  LABELS = map[__name__:up instance:b:9100 job:node]"
 
-  - name: PrometheusTargetMissingWithWarmupTime ignores a host that booted less than 10 minutes ago
+  - name: PrometheusAllTargetsMissing fires when a whole job is down for 2 minutes
     interval: 1m
     input_series:
-      # a: exporter down, host up for 1h, warmup is over
-      - series: 'up{job="node", instance="a:9100"}'
-        values: '0x30'
-      - series: 'node_time_seconds{instance="a:9100"}'
-        values: '1700003600x30'
-      - series: 'node_boot_time_seconds{instance="a:9100"}'
-        values: '1700000000x30'
-      # b: exporter down, host up for 100s only, still warming up
-      - series: 'up{job="node", instance="b:9100"}'
-        values: '0x30'
-      - series: 'node_time_seconds{instance="b:9100"}'
-        values: '1700000100x30'
-      - series: 'node_boot_time_seconds{instance="b:9100"}'
-        values: '1700000000x30'
+      - series: 'up{job="vault", instance="v1:8200"}'
+        values: '0x10'
+      - series: 'up{job="vault", instance="v2:8200"}'
+        values: '0x10'
     alert_rule_test:
-      - eval_time: 10m
-        alertname: PrometheusTargetMissingWithWarmupTime
+      - eval_time: 1m
+        alertname: PrometheusAllTargetsMissing
+        exp_alerts: []
+      - eval_time: 5m
+        alertname: PrometheusAllTargetsMissing
         exp_alerts:
           - exp_labels:
               severity: critical
-              job: node
-              instance: "a:9100"
+              job: vault
             exp_annotations:
-              summary: "Prometheus target missing with warmup time (instance a:9100)"
-              description: "Allow a job time to start up (10 minutes) before alerting that it's down.\n  VALUE = 0\n  LABELS = map[instance:a:9100 job:node]"
+              summary: "Prometheus all targets missing (job vault)"
+              description: "A Prometheus job does not have living target anymore.\n  VALUE = 0\n  LABELS = map[job:vault]"
